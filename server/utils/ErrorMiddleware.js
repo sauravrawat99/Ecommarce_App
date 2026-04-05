@@ -1,4 +1,4 @@
-const errHandle = (err, req, res, next) => {
+const ErrorMiddleware = (err, req, res, next) => {
   if (err) {
     console.log(err);
   }
@@ -7,3 +7,5 @@ const errHandle = (err, req, res, next) => {
     message: err.message || "Server Error",
   });
 };
+
+module.exports = ErrorMiddleware;

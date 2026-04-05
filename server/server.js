@@ -2,34 +2,25 @@
 
 const express = require("express");
 const { Dbconnect, PORT } = require("./config/Db");
-// const mongoose = require("mongoose");
-// const dotenv = require("dotenv");
-// const cors = require("cors");
-
-// config env
-// dotenv.config();
+const authRoutes = require("./routes/authRoutes");
+const ErrorMiddleware = require("./utils/ErrorMiddleware");
 
 // app init
 const app = express();
 
 // middleware
 app.use(express.json());
+app.use("/api/auth", authRoutes);
 
 // test route
 app.get("/", (req, res) => {
   res.send("API is running 🚀");
 });
 
-Dbconnect()
+Dbconnect();
 
-// DB connect
-// mongoose
-//   .connect(process.env.MONGO_URL)
-//   .then(() => console.log("MongoDB Connected ✅"))
-//   .catch((err) => console.log(err));
-
-// // server start
-// const PORT = process.env.PORT || 5000;
+//Error handler
+app.use(ErrorMiddleware);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
