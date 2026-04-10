@@ -2,6 +2,7 @@ const User = require("../models/model.User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const ApiError = require("../utils/ApiError");
+const { json } = require("express");
 
 // check user
 const checkUserExists = async (email) => {
@@ -27,14 +28,39 @@ const generateToken = (id) => {
 
 // login helpers
 const findUser = async (email) => {
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }).select("+password");
   if (!user) throw new ApiError("Invalid email", 400);
   return user;
 };
 
-const comparePassword = async (pass, hash) => {
-  const match = await bcrypt.compare(pass, hash);
-  if (!match) throw new ApiError("Invalid credentials", 401);
+const comparePassword = async (user, password) => {
+  // check account locked
+  if (user.lockUntil && user.lockUntil > Date.now()) {
+    throw new ApiError("Account locked. Try again later", 403);
+  }
+
+  const match = await bcrypt.compare(password, user.password);
+
+  // ❌ wrong password
+  if (!match) {
+    user.loginAttempts += 1;
+
+    if (user.loginAttempts >= 3) {
+      user.lockUntil = Date.now() + 10 * 60 * 1000;
+    }
+
+    await user.save();
+
+    throw new ApiError("Invalid credentials", 401);
+  }
+
+  // ✅ correct password → reset
+  user.loginAttempts = 0;
+  user.lockUntil = undefined;
+
+  await user.save();
+
+  return true;
 };
 
 module.exports = {
