@@ -23,7 +23,9 @@ const createUser = async (name, email, password) => {
 
 // generate token
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE,
+  });
 };
 
 // login helpers
@@ -62,6 +64,11 @@ const comparePassword = async (user, password) => {
 
   return true;
 };
+const findbyId = async (_id) => {
+  const user = await User.findById({ _id });
+  if (!user) throw new ApiError("Invalid email", 400);
+  return user;
+};
 
 module.exports = {
   checkUserExists,
@@ -70,4 +77,5 @@ module.exports = {
   generateToken,
   findUser,
   comparePassword,
+  findbyId,
 };

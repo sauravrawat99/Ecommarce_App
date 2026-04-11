@@ -11,7 +11,9 @@ const {
   generateToken,
   findUser,
   comparePassword,
+  findbyId,
 } = require("../service/auth.service");
+const setTokenCookie = require("../utils/Cookie");
 
 // register
 exports.register = asyncHandler(async (req, res) => {
@@ -32,15 +34,7 @@ exports.register = asyncHandler(async (req, res) => {
   const token = generateToken(user._id);
 
   // 5. set cookie
-  res.cookie("token", token, {
-    httpOnly: true,
-    // when production that time use it
-    // secure: process.env.NODE_ENV === "production",
-    secure: false,
-    sameSite: "strict",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
-
+  setTokenCookie(res, token);
   // 6. send response
   res.status(201).json({
     success: true,
@@ -65,17 +59,26 @@ exports.login = asyncHandler(async (req, res) => {
 
   const token = generateToken(user._id);
 
-  res.cookie("token", token, {
-    httpOnly: true,
-    // when production that time use it
-    // secure: process.env.NODE_ENV === "production",
-    secure: false,
-    sameSite: "strict",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
-
+  setTokenCookie(res, token);
   res.json({
     success: true,
     message: "Login success ",
+    token,
   });
 });
+
+exports.logout = async (req, res) => {
+  res.status(200).json({
+    success: true,
+    massage: "Logout successfully",
+    token: null,
+  });
+};
+
+exports.getProfile = async (req, res) => {
+  const user = await findbyId(req.user.id);
+  res.status(200).json({
+    success: true,
+    user,
+  });
+};
