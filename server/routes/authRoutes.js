@@ -4,6 +4,8 @@ const {
   login,
   logout,
   getProfile,
+  forgotPassword,
+  resetPassword,
 } = require("../controllers/authController");
 const rateLimit = require("express-rate-limit");
 const authMiddleware = require("../middleware/authMiddleware");
@@ -19,5 +21,8 @@ router.post("/register", register);
 router.post("/login", loginLimiter, login);
 router.get("/logout", authMiddleware, logout);
 router.get("/me", authMiddleware, getProfile);
+
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password", resetPassword);
 
 module.exports = router;

@@ -2,6 +2,7 @@ const asyncHandler = require("../utils/AsyncError");
 const {
   validateRegister,
   validateLogin,
+  validateResetPassword,
 } = require("../validator/auth.validator");
 
 const {
@@ -12,8 +13,11 @@ const {
   findUser,
   comparePassword,
   findbyId,
+  forgotPasswordService,
+  resetPasswordservice,
 } = require("../service/auth.service");
 const setTokenCookie = require("../utils/Cookie");
+const AsyncHandler = require("../utils/AsyncError");
 
 // register
 exports.register = asyncHandler(async (req, res) => {
@@ -82,3 +86,23 @@ exports.getProfile = async (req, res) => {
     user,
   });
 };
+
+exports.forgotPassword = AsyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  await forgotPasswordService(email);
+  res.status(200).json({
+    success: true,
+    message: `Reset link ${email}pe bhej diya!`,
+  });
+});
+
+exports.resetPassword = AsyncHandler(async (req, res) => {
+  validateResetPassword(req.body);
+  const { token, newPassword } = req.body;
+  await resetPasswordservice(token, newPassword);
+  res.status(200).json({
+    success: true,
+    message: "Password reset successfully!",
+  });
+});

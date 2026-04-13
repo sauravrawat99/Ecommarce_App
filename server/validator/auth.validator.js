@@ -1,6 +1,6 @@
 const ApiError = require("../utils/ApiError");
 
-const validateRegister = ({ name, email, password }) => {
+exports.validateRegister = ({ name, email, password }) => {
   if (!name || !email || !password) {
     throw new ApiError("All fields required", 400);
   }
@@ -14,10 +14,14 @@ const validateRegister = ({ name, email, password }) => {
   }
 };
 
-const validateLogin = ({ email, password }) => {
+exports.validateLogin = ({ email, password }) => {
   if (!email || !password) {
     throw new ApiError("Email & password required", 400);
   }
 };
 
-module.exports = { validateRegister, validateLogin };
+exports.validateResetPassword = ({ token, newPassword }) => {
+  if (!token || !newPassword) {
+    throw new ApiError("token and newpassword not found", 401);
+  }
+};

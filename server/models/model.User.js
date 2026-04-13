@@ -40,8 +40,14 @@ const userSchema = new mongoose.Schema(
 
     passwordChangedAt: Date,
 
-    resetPasswordToken: String,
-    resetPasswordExpire: Date,
+    resetPasswordToken: {
+      type: String,
+      default: null,
+    },
+    resetPasswordExpire: {
+      type: Date,
+      default: null,
+    },
 
     // 🛒 eCommerce Fields
     cart: [
