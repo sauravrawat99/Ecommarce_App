@@ -35,7 +35,12 @@ const productSchema = new mongoose.Schema(
 
     images: [
       {
-        type: String,
+        public_id: {
+          type: String,
+        },
+        url: {
+          type: String,
+        },
       },
     ],
 
@@ -58,6 +63,10 @@ const productSchema = new mongoose.Schema(
     isFeatured: {
       type: Boolean,
       default: false,
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
   },
   { timestamps: true },
