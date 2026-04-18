@@ -7,6 +7,7 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const cors = require("cors");
 const cookiePerser = require("cookie-parser");
+const { cloudConfig } = require("./config/cloudinary");
 
 // const loginLimiter = rateLimit({
 //   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -49,7 +50,7 @@ app.get("/", (req, res) => {
   res.send("API is running 🚀");
 });
 Dbconnect();
-
+cloudConfig();
 // Middleware to handle errors that occur during request processing and send appropriate
 app.use(ErrorMiddleware);
 
