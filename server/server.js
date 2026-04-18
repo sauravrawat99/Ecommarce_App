@@ -1,13 +1,14 @@
 // server.js
 const express = require("express");
-const { Dbconnect, PORT } = require("./config/Db");
-const authRoutes = require("./routes/authRoutes");
+const { Dbconnect, PORT } = require("./config/db");
+const authRoutes = require("./routes/auth.routes");
 const ErrorMiddleware = require("./utils/ErrorMiddleware");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const cors = require("cors");
 const cookiePerser = require("cookie-parser");
 const { cloudConfig } = require("./config/cloudinary");
+const productRoutes = require("./routes/product.routes");
 
 // const loginLimiter = rateLimit({
 //   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -44,6 +45,7 @@ app.use(cookiePerser());
 
 // middleware to handle routes related to authentication, such as login and registration
 app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
 
 // test route
 app.get("/", (req, res) => {
