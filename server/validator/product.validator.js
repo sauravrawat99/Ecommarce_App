@@ -1,6 +1,6 @@
 const ApiError = require("../utils/ApiError");
 
-const validateCreateProduct = (body) => {
+exports.validateCreateProduct = (body) => {
   const { name, price, stock, description } = body;
 
   if (!name) throw new ApiError("Name is required", 400);
@@ -10,4 +10,6 @@ const validateCreateProduct = (body) => {
   if (stock < 0) throw new ApiError("Stock cannot be negative", 400);
 };
 
-module.exports = { validateCreateProduct };
+exports.checkId = (_id) => {
+  if (!_id) throw new ApiError("Id not found", 400);
+};

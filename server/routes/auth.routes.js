@@ -9,7 +9,7 @@ const {
   resetPassword,
 } = require("../controllers/auth.controller");
 const rateLimit = require("express-rate-limit");
-const isAuthenticated = require("../middleware/auth.middleware");
+const { isAuthenticated } = require("../middleware/auth.middleware");
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 min

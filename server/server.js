@@ -9,6 +9,8 @@ const cors = require("cors");
 const cookiePerser = require("cookie-parser");
 const { cloudConfig } = require("./config/cloudinary");
 const productRoutes = require("./routes/product.routes");
+const categoryRoutes = require("./routes/category.routes");
+const cartRouters = require("./routes/cart.routes");
 
 // const loginLimiter = rateLimit({
 //   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -46,6 +48,8 @@ app.use(cookiePerser());
 // middleware to handle routes related to authentication, such as login and registration
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/category", categoryRoutes);
+app.use("/api/cart", cartRouters);
 
 // test route
 app.get("/", (req, res) => {

@@ -1,24 +1,27 @@
 const jwt = require("jsonwebtoken");
 const ApiError = require("../utils/ApiError");
-const AsyncError = require("../utils/AsyncError");
+const AsyncHandle = require("../utils/AsyncHandle");
 
-module.exports = AsyncError((req, res, next) => {
-  const authHeader = req.headers.authorization;
+exports.isAuthenticated = AsyncHandle((req, res, next) => {
+  // Cookie se token
+  const cookieToken = req.cookies?.token;
 
-  // ✅ Check 1 — Header hai?
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    throw new ApiError("No token", 401);
-  }
+  // Header se token — Bearer hata ke
+  const headerToken =
+    req.headers.authorization?.startsWith("Bearer ") ?
+      req.headers.authorization.split(" ")[1]
+    : null;
 
-  // ✅ Fix — "Bearer eyJ..." → split karo → sirf "eyJ..." lo
-  const token = authHeader.split(" ")[1];
+  // Jo bhi mile
+  const token = cookieToken || headerToken;
 
-  // ✅ Check 2 — Token empty toh nahi?
+  // Koi nahi mila?
   if (!token) throw new ApiError("No token", 401);
 
-  // ✅ Ab verify karega sahi se!
+  // Verify karo
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+  // User set karo
   req.user = decoded;
   next();
 });

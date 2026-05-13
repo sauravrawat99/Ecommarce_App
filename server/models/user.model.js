@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       minlength: 6,
-      select: false, // 🔥 important (hide password)
+      select: false,
     },
 
     role: {
@@ -50,20 +50,10 @@ const userSchema = new mongoose.Schema(
     },
 
     // 🛒 eCommerce Fields
-    cart: [
-      {
-        product: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
-        },
-        quantity: {
-          type: Number,
-          default: 1,
-        },
-      },
-    ],
+    // ❌ cart hata diya — alag Cart model hai
 
     wishlist: [
+      // ✅ sirf wishlist rakha
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Product",

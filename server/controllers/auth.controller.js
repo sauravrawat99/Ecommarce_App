@@ -1,4 +1,4 @@
-const AsyncHandler = require("../utils/AsyncError");
+const AsyncHandler = require("../utils/AsyncHandle");
 const ApiError = require("../utils/ApiError");
 const {
   validateRegister,
