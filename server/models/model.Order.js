@@ -77,7 +77,12 @@ const orderSchema = new mongoose.Schema(
       enum: ["pending", "confirmed", "shipped", "delivered", "cancelled"],
       default: "pending",
     },
-
+    // Payment info save karo
+    paymentInfo: {
+      razorpay_order_id: String,
+      razorpay_payment_id: String,
+      razorpay_signature: String,
+    },
     deliveredAt: Date,
     paidAt: Date,
   },

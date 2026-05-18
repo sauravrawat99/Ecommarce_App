@@ -53,7 +53,6 @@ const userSchema = new mongoose.Schema(
     // ❌ cart hata diya — alag Cart model hai
 
     wishlist: [
-      // ✅ sirf wishlist rakha
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Product",
