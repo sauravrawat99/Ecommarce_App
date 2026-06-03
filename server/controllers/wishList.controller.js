@@ -19,6 +19,8 @@ exports.getWishlist = AsyncHandler(async (req, res) => {
 // Wishlist mein add karo
 exports.addToWishlist = AsyncHandler(async (req, res) => {
   const { productId } = req.body;
+  console.log(productId);
+
   if (!productId) throw new ApiError("Product ID required", 400);
 
   const wishlist = await addToWishlist(req.user.id, productId);
