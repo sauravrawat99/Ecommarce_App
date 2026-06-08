@@ -13,6 +13,7 @@ const categoryRoutes = require("./routes/category.routes");
 const cartRouters = require("./routes/cart.routes");
 const wishlistRoutes = require("./routes/wishlist.routes");
 const OrderRoutes = require("./routes/order.routes");
+const paymentRoutes = require("./routes/payment.routes");
 
 // const loginLimiter = rateLimit({
 //   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -53,7 +54,8 @@ app.use("/api/products", productRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/cart", cartRouters);
 app.use("/api/wishlist", wishlistRoutes);
-app.use("/Api/orders", OrderRoutes);
+app.use("/api/orders", OrderRoutes);
+app.use("/api/payment", paymentRoutes);
 
 // test route
 app.get("/", (req, res) => {
