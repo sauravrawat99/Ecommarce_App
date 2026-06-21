@@ -45,7 +45,7 @@ exports.comparePassword = async (user, password) => {
 
   if (!match) {
     user.loginAttempts += 1;
-    if (user.loginAttempts >= 3) user.lockUntil = Date.now() + 10 * 60 * 1000;
+    if (user.loginAttempts >= 3) user.lockUntil = Date.now() +  1000;
     await user.save();
     throw new ApiError("Invalid credentials", 401);
   }
