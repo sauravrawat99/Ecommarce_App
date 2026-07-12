@@ -38,7 +38,7 @@ app.use(morgan("dev"));
 //  from different origins
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://tera-vercel-url.vercel.app"],
+    origin: ["http://localhost:5173","https://ecommarce-app-flame.vercel.app"],
     credentials: true,
   }),
 );
