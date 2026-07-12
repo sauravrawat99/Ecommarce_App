@@ -6,7 +6,7 @@ const {
   getbyid,
   deletebyid,
   updateProduct,
-} = require("../service/product.service");
+} = require("../service/product.Service");
 const {
   validateCreateProduct,
   checkId,
