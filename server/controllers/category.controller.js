@@ -9,9 +9,11 @@ const {
   deleteCategory,
 } = require("../service/category.service");
 const { checkId } = require("../validator/product.validator");
+const { ServerDescription } = require("mongodb");
 
 exports.createCategory = AsyncHandle(async (req, res) => {
-  validatorCategory(req.body);
+  const { name } = req.body;
+  validatorCategory(name);
 
   const newCategory = await createCategory(req.body);
 
