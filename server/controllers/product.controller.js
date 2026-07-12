@@ -6,7 +6,7 @@ const {
   getbyid,
   deletebyid,
   updateProduct,
-} = require("../service/product.Service");
+} = require("../service/product.service");
 const {
   validateCreateProduct,
   checkId,
@@ -14,7 +14,7 @@ const {
 const {
   uploadToCloudinary,
   deleteFromCloudinary,
-} = require("../utils/cloudinary.utils");
+} = require("../utils/Cloudinary.utils");
 
 exports.createProduct = AsyncHandler(async (req, res) => {
   // Step 1 — Validate karo
