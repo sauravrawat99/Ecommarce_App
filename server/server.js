@@ -38,7 +38,7 @@ app.use(morgan("dev"));
 //  from different origins
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "https://tera-vercel-url.vercel.app"],
     credentials: true,
   }),
 );
