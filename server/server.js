@@ -51,7 +51,7 @@ app.use(cookiePerser());
 
 // middleware to handle routes related to authentication, such as login and registration
 app.use("/api/auth", authRoutes);
-app.use("/products", productRoutes);
+app.use("/api/products", productRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/cart", cartRouters);
 app.use("/api/wishlist", wishlistRoutes);
