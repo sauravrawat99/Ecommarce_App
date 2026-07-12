@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 
-const Dbconnect = async function () {
+const dbconnect = async function () {
   try {
     await mongoose.connect(process.env.MONGO_URL);
     console.log("connect db");
@@ -13,4 +13,4 @@ const Dbconnect = async function () {
 };
 const PORT = process.env.PORT || 5000;
 
-module.exports = { Dbconnect, PORT };
+module.exports = { dbconnect, PORT };

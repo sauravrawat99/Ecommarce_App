@@ -1,6 +1,6 @@
 // server.js
 const express = require("express");
-const { Dbconnect, PORT } = require("./config/db");
+const { dbconnect, PORT } = require("./config/db");
 const authRoutes = require("./routes/auth.routes");
 const ErrorMiddleware = require("./utils/ErrorMiddleware");
 const helmet = require("helmet");
@@ -63,7 +63,7 @@ app.use("/api/admin", adminRoutes);
 app.get("/", (req, res) => {
   res.send("API is running 🚀");
 });
-Dbconnect();
+dbconnect();
 cloudConfig();
 // Middleware to handle errors that occur during request processing and send appropriate
 app.use(ErrorMiddleware);
