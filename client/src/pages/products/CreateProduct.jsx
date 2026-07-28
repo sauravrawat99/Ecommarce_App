@@ -14,29 +14,23 @@ const CreateProduct = () => {
   const { loading, error } = useSelector((state) => state.products);
   const { categories } = useSelector((state) => state.category);
 
-  // Product form ka data
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     price: "",
     category: "",
     stock: "",
-    images: [], // 🆕 ab ye File objects ka array rakhega
+    images: [],
   });
 
-  // 🆕 Preview ke liye alag se URLs store karenge
   const [previewUrls, setPreviewUrls] = useState([]);
-
   const [showModal, setShowModal] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
 
-  // Page khulte hi categories fetch karo
   useEffect(() => {
     dispatch(fetchCategories());
   }, [dispatch]);
 
-  // 🆕 Cleanup — preview URLs ko revoke karo jab component unmount ho
-  // ya naya selection ho (memory leak se bachne ke liye)
   useEffect(() => {
     return () => {
       previewUrls.forEach((url) => URL.revokeObjectURL(url));
@@ -47,33 +41,24 @@ const CreateProduct = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 🆕 Image input ke liye ALAG handler — text input wale se mix nahi karna
   const handleImageChange = (e) => {
-    const files = Array.from(e.target.files); // FileList -> normal array
-
+    const files = Array.from(e.target.files);
     if (files.length === 0) return;
 
-    // formData mein actual File objects store karo (upload ke liye)
     setFormData({ ...formData, images: files });
-
-    // Preview dikhane ke liye temporary URLs banao
     const newPreviewUrls = files.map((file) => URL.createObjectURL(file));
     setPreviewUrls(newPreviewUrls);
   };
 
-  // 🆕 Ek image ko preview se remove karne ke liye (optional but useful)
   const handleRemoveImage = (index) => {
     const updatedImages = formData.images.filter((_, i) => i !== index);
     const updatedPreviews = previewUrls.filter((_, i) => i !== index);
-
     setFormData({ ...formData, images: updatedImages });
     setPreviewUrls(updatedPreviews);
   };
 
-  // Jab dropdown mein selection ho
   const handleCategoryChange = (e) => {
     const value = e.target.value;
-
     if (value === "ADD_NEW") {
       setShowModal(true);
     } else {
@@ -81,7 +66,6 @@ const CreateProduct = () => {
     }
   };
 
-  // Naya category create karo
   const handleCreateCategory = async () => {
     if (!newCategoryName.trim()) return;
 
@@ -97,13 +81,11 @@ const CreateProduct = () => {
     }
   };
 
-  // 🆕 Submit handler — ab FormData use karega, plain object nahi
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Basic validation — kam se kam ek image honi chahiye
     if (formData.images.length === 0) {
-      alert("Please select at least one image"); // ya apna toast/error UI use karo
+      alert("Please select at least one image");
       return;
     }
 
@@ -114,8 +96,6 @@ const CreateProduct = () => {
     productFormData.append("category", formData.category);
     productFormData.append("stock", formData.stock);
 
-    // Multiple files same field name "images" se append karo
-    // Backend (multer) isi naam se expect karta hai
     formData.images.forEach((file) => {
       productFormData.append("images", file);
     });
@@ -124,9 +104,11 @@ const CreateProduct = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center relative">
-      <div className="bg-white rounded-3xl shadow-sm p-10 w-full max-w-md">
-        <h1 className="text-3xl font-semibold text-center mb-8">Add Product</h1>
+    <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center relative px-4 py-8 sm:px-6">
+      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-sm p-6 sm:p-10 w-full max-w-md">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-center mb-6 sm:mb-8">
+          Add Product
+        </h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
@@ -154,7 +136,6 @@ const CreateProduct = () => {
             placeholder="Enter price"
           />
 
-          {/* Category Dropdown */}
           <div>
             <label className="text-sm font-medium text-[#1d1d1f] mb-1 block">
               Category
@@ -185,7 +166,6 @@ const CreateProduct = () => {
             placeholder="Enter stock quantity"
           />
 
-          {/* 🆕 IMAGE UPLOAD — alag handler, no value prop */}
           <div>
             <label className="text-sm font-medium text-[#1d1d1f] mb-1 block">
               Images
@@ -196,23 +176,22 @@ const CreateProduct = () => {
               accept="image/*"
               multiple
               onChange={handleImageChange}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200
+              className="w-full px-3 sm:px-4 py-3 rounded-xl border border-gray-200
                          focus:outline-none focus:border-blue-500 text-sm
-                         file:mr-3 file:py-1 file:px-3 file:rounded-lg
+                         file:mr-2 sm:file:mr-3 file:py-1 file:px-2 sm:file:px-3 file:rounded-lg
                          file:border-0 file:bg-blue-50 file:text-blue-600
-                         file:text-sm file:cursor-pointer cursor-pointer"
+                         file:text-xs sm:file:text-sm file:cursor-pointer cursor-pointer"
             />
           </div>
 
-          {/* 🆕 Image Previews */}
           {previewUrls.length > 0 && (
             <div className="flex flex-wrap gap-3 mt-2">
               {previewUrls.map((url, index) => (
-                <div key={index} className="relative w-20 h-20">
+                <div key={index} className="relative w-16 h-16 sm:w-20 sm:h-20">
                   <img
                     src={url}
                     alt={`preview-${index}`}
-                    className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                    className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border border-gray-200"
                   />
                   <button
                     type="button"
@@ -233,14 +212,17 @@ const CreateProduct = () => {
           </Button>
         </form>
 
-        {error && <p className="text-center mt-4 text-red-500">{error}</p>}
+        {error && (
+          <p className="text-center mt-4 text-red-500 text-sm">{error}</p>
+        )}
       </div>
 
-      {/* POPUP / MODAL — sirf showModal true hone pe dikhega */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
-            <h2 className="text-lg font-semibold mb-4">Add New Category</h2>
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-sm">
+            <h2 className="text-base sm:text-lg font-semibold mb-4">
+              Add New Category
+            </h2>
 
             <input
               type="text"

@@ -3,7 +3,9 @@ import Input from "../../components/ui/Input";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../redux/slices/authSlice";
 import Button from "../../components/ui/Button";
+import AuthLayout from "../../components/AuthLayout";
 import { Link } from "react-router-dom";
+import { Mail, Lock } from "lucide-react";
 
 const LoginPage = () => {
   const dispatch = useDispatch();
@@ -20,47 +22,70 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center">
-      <div className="bg-white rounded-3xl shadow-sm p-10 w-full max-w-md">
-        <h1 className="text-3xl font-semibold text-center mb-8">Login</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            type="email"
-            label="Email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            placeholder="Enter your email"
-          />
-          <Input
-            type="password"
-            label="Password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            placeholder="Enter your password"
-          />
-          <Button className="w-full" type="submit" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
-          </Button>
-        </form>
+    <AuthLayout
+      title="Welcome back to ShopKart"
+      subtitle="Login karke apne orders track karein, wishlist dekhein, aur shopping continue karein jahan chhodi thi."
+    >
+      <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-1">
+        Login
+      </h1>
+      <p className="text-sm text-gray-500 mb-6 sm:mb-8">
+        Apna account access karne ke liye details daalein
+      </p>
 
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Input
+          type="email"
+          label="Email"
+          name="email"
+          icon={Mail}
+          value={form.email}
+          onChange={handleChange}
+          placeholder="Enter your email"
+        />
+        <Input
+          type="password"
+          label="Password"
+          name="password"
+          icon={Lock}
+          value={form.password}
+          onChange={handleChange}
+          placeholder="Enter your password"
+        />
+
+        <div className="flex justify-end">
+          <Link
+            to="/forgot-password"
+            className="text-indigo-600 hover:text-indigo-700 text-sm font-medium"
+          >
+            Forgot Password?
+          </Link>
+        </div>
+
+        <Button className="w-full" type="submit" disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
+        </Button>
+      </form>
+
+      {user && (
+        <p className="text-center text-sm text-green-600 mt-5">
+          Login successful, {user.name}!
+        </p>
+      )}
+      {error && (
+        <p className="text-center text-sm mt-5 text-red-500">{error}</p>
+      )}
+
+      <p className="text-center text-sm text-gray-500 mt-8">
+        Naya account?{" "}
         <Link
-          to="/forgot-password"
-          className="text-blue-500 text-sm block text-center mt-4"
+          to="/register"
+          className="text-indigo-600 font-medium hover:text-indigo-700"
         >
-          Forgot Password?
+          Sign up
         </Link>
-
-        {user && (
-          <p className="text-center text-green-400">
-            {`Login successfully ${user.name}`}
-          </p>
-        )}
-        {loading && <p className="text-center mt-4">Logging in...</p>}
-        {error && <p className="text-center mt-4 text-red-500">{error}</p>}
-      </div>
-    </div>
+      </p>
+    </AuthLayout>
   );
 };
 

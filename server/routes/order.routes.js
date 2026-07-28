@@ -12,7 +12,7 @@ const { isAuthenticated } = require("../middleware/auth.middleware");
 
 router.use(isAuthenticated);
 
-router.post("/", newOrder);
+router.post("/create/order", newOrder);
 router.get("/my-orders", MyOrders);
 router.get("/:id", singleOrder);
 router.put("/cancel/:id", cancelOrder);

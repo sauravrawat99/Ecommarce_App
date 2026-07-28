@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar"; // ✅ Import karo
+import AdminRoute from "./components/AdminRoute";
+import Navbar from "./components/Navbar";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import LoginPage from "./pages/auth/LoginPage";
 import ProfilePage from "./pages/auth/ProfilePage";
@@ -9,12 +10,18 @@ import PrivateRoute from "./components/PrivateRoutes";
 import CreateProduct from "./pages/products/CreateProduct";
 import ProductList from "./pages/products/ProductList";
 import ProductDetailPage from "./pages/products/ProductDetailPage";
+import Footer from "./components/ui/Footer";
+import Home from "./pages/Home";
+import AdminProductList from "./pages/admin/AdminProductList";
+import EditProduct from "./pages/products/EditProduct"; // 🆕 tu jab bana le tab uncomment/use kar
+import AdminDashboard from "./pages/admin/AdminDashboard";
 
 const App = () => {
   return (
     <>
-      <Navbar /> {/* ✅ Yahan lagao — Routes ke bahar */}
+      <Navbar />
       <Routes>
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -33,12 +40,41 @@ const App = () => {
         <Route
           path="/admin/create-product"
           element={
-            <PrivateRoute>
+            <AdminRoute>
               <CreateProduct />
-            </PrivateRoute>
+            </AdminRoute>
+          }
+        />
+
+        {/* 🆕 Admin — Product List */}
+        <Route
+          path="/admin/products"
+          element={
+            <AdminRoute>
+              <AdminProductList />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
+
+        {/* 🆕 Admin — Edit Product (:id dynamic param hai) */}
+        <Route
+          path="/admin/edit-product/:id"
+          element={
+            <AdminRoute>
+              <EditProduct />
+            </AdminRoute>
           }
         />
       </Routes>
+      <Footer />
     </>
   );
 };

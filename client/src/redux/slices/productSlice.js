@@ -8,7 +8,6 @@ export const createProduct = createAsyncThunk(
   async (productData, { rejectWithValue }) => {
     try {
       const res = await productsService.createProduct(productData);
-
       return res.data;
     } catch (err) {
       return rejectWithValue(
@@ -46,6 +45,21 @@ export const fetchProductById = createAsyncThunk(
   },
 );
 
+// 🆕 Update thunk — id + updated data dono chahiye
+export const updateProduct = createAsyncThunk(
+  "products/update",
+  async ({ id, productData }, { rejectWithValue }) => {
+    try {
+      const res = await productsService.updateProduct(id, productData);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Product update failed",
+      );
+    }
+  },
+);
+
 export const deleteProduct = createAsyncThunk(
   "products/delete",
   async (id, { rejectWithValue }) => {
@@ -65,8 +79,8 @@ export const deleteProduct = createAsyncThunk(
 const productSlice = createSlice({
   name: "products",
   initialState: {
-    products: [], // list ke liye — array
-    product: null, // single product detail ke liye — object
+    products: [],
+    product: null,
     loading: false,
     error: null,
   },
@@ -84,7 +98,6 @@ const productSlice = createSlice({
       })
       .addCase(createProduct.fulfilled, (state, action) => {
         state.loading = false;
-        // Backend "product" key bhejta hai single object ke liye bhi
         state.products.push(action.payload.product || action.payload);
       })
       .addCase(createProduct.rejected, (state, action) => {
@@ -92,14 +105,13 @@ const productSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Fetch All — FIX: state.products (plural) update karo, state.product nahi
+      // Fetch All
       .addCase(fetchProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
-        // Backend "product" key mein array bhejta hai (tera console.log se confirm hua)
         state.products = action.payload.product || action.payload;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
@@ -107,19 +119,36 @@ const productSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Fetch One — single product ke liye state.product hi sahi hai
       // Fetch One
       .addCase(fetchProductById.pending, (state) => {
-        // ✅ add karo
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchProductById.fulfilled, (state, action) => {
-        state.loading = false; // ✅ add karo
+        state.loading = false;
         state.product = action.payload.product || action.payload;
       })
       .addCase(fetchProductById.rejected, (state, action) => {
-        // ✅ add karo
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // 🆕 Update
+      .addCase(updateProduct.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateProduct.fulfilled, (state, action) => {
+        state.loading = false;
+        const updated = action.payload.product || action.payload;
+        // List mein bhi update karo (agar wahan se list dikha rahe ho)
+        state.products = state.products.map((p) =>
+          p._id === updated._id ? updated : p,
+        );
+        // Current single-product state bhi update karo
+        state.product = updated;
+      })
+      .addCase(updateProduct.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
