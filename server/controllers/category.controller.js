@@ -4,18 +4,18 @@ const { validatorCategory } = require("../validator/category.validator");
 const {
   createCategory,
   getAllCategory,
+  getCategoryTree,
   getCategoryById,
   updateCategory,
   deleteCategory,
 } = require("../service/category.service");
 const { checkId } = require("../validator/product.validator");
-const { ServerDescription } = require("mongodb");
 
 exports.createCategory = AsyncHandle(async (req, res) => {
   const { name } = req.body;
   validatorCategory(name);
 
-  const newCategory = await createCategory(req.body);
+  const newCategory = await createCategory(req.body); // req.body mein parent bhi ab use ho rahi hai
 
   res.status(201).json({
     success: true,
@@ -27,11 +27,20 @@ exports.createCategory = AsyncHandle(async (req, res) => {
 exports.getAllCategory = AsyncHandle(async (req, res) => {
   const allcategory = await getAllCategory();
   res.status(200).json({
-    // ✅ 200
     success: true,
-    message: "Categories fetched successfully", // ✅
-    count: allcategory.length, // ✅ bonus
+    message: "Categories fetched successfully",
+    count: allcategory.length,
     allcategory,
+  });
+});
+
+// 👇 naya endpoint — mega menu ke liye nested tree
+exports.getCategoryTree = AsyncHandle(async (req, res) => {
+  const tree = await getCategoryTree();
+  res.status(200).json({
+    success: true,
+    message: "Category tree fetched successfully",
+    tree,
   });
 });
 
@@ -39,12 +48,12 @@ exports.getCategoryById = AsyncHandle(async (req, res) => {
   const { id } = req.params;
   checkId(id);
 
-  const category = await getCategoryById(id);
+  const result = await getCategoryById(id); // ab { category, subCategories } return hota hai
 
   res.status(200).json({
     success: true,
     message: "category find successfully",
-    category,
+    ...result,
   });
 });
 
@@ -69,7 +78,6 @@ exports.deleteCategoryById = AsyncHandle(async (req, res) => {
   await deleteCategory(id);
 
   res.status(200).json({
-    // ✅ 200
     success: true,
     message: "Category deleted successfully",
   });

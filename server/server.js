@@ -55,7 +55,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/cart", cartRouters);
 app.use("/api/wishlist", wishlistRoutes);
-app.use("/api/orders", OrderRoutes);
+app.use("/api", OrderRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/admin", adminRoutes);
 

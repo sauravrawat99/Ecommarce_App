@@ -1,9 +1,11 @@
+const mongoose = require("mongoose");
 const AsyncHandler = require("../utils/AsyncHandle");
 const ApiError = require("../utils/ApiError");
 const {
   createProduct,
   getAllProducts,
   getbyid,
+  getBySlug,
   deletebyid,
   updateProduct,
 } = require("../service/product.Service");
@@ -17,10 +19,8 @@ const {
 } = require("../utils/Cloudinary.utils");
 
 exports.createProduct = AsyncHandler(async (req, res) => {
-  // Step 1 — Validate karo
   validateCreateProduct(req.body);
 
-  // Step 2 — Images upload karo Cloudinary pe
   const images = [];
   if (req.files && req.files.length > 0) {
     for (const file of req.files) {
@@ -32,14 +32,12 @@ exports.createProduct = AsyncHandler(async (req, res) => {
     }
   }
 
-  // Step 3 — Service ko do
   const product = await createProduct({
     ...req.body,
     images,
-    createdBy: req.user._id, // auth middleware se aata hai
+    createdBy: req.user._id,
   });
 
-  // Step 4 — Response bhejo
   res.status(201).json({
     success: true,
     message: "Product created successfully",
@@ -56,17 +54,23 @@ exports.getAllProducts = AsyncHandler(async (req, res) => {
   });
 });
 
-exports.getById = AsyncHandler(async (req, res) => {
-  const { id } = req.params;
+// 👇 getById aur getBySlug ki jagah — ek hi function, id ya slug dono handle karega
+exports.getProduct = AsyncHandler(async (req, res) => {
+  const { identifier } = req.params;
 
-  checkId(id);
+  let product;
 
-  const product = await getbyid(id);
+  if (mongoose.Types.ObjectId.isValid(identifier)) {
+    product = await getbyid(identifier);
+  } else {
+    product = await getBySlug(identifier);
+  }
+
   if (!product) throw new ApiError("Product not found", 404);
 
   res.status(200).json({
     success: true,
-    massage: "prodcts find successfully",
+    message: "Product found successfully",
     product,
   });
 });
@@ -82,7 +86,6 @@ exports.deletebyId = AsyncHandler(async (req, res) => {
     await deleteFromCloudinary(image.public_id);
   }
 
-  // Step 3 — MongoDB se delete karo
   await deletebyid(id);
 
   res.status(200).json({
@@ -95,18 +98,14 @@ exports.updateById = AsyncHandler(async (req, res) => {
   const { id } = req.params;
   checkId(id);
 
-  // Product exist karta hai?
   const product = await getbyid(id);
   if (!product) throw new ApiError("Product not found", 404);
 
-  // Nayi images aai hain?
   if (req.files && req.files.length > 0) {
-    // Purani images Cloudinary se delete karo
     for (const image of product.images) {
       await deleteFromCloudinary(image.public_id);
     }
 
-    // Nayi images upload karo
     const images = [];
     for (const file of req.files) {
       const { public_id, url } = await uploadToCloudinary(
@@ -116,11 +115,9 @@ exports.updateById = AsyncHandler(async (req, res) => {
       images.push({ public_id, url });
     }
 
-    // req.body mein daalo
     req.body.images = images;
   }
 
-  // MongoDB mein update karo
   const updated = await updateProduct(id, req.body);
 
   res.status(200).json({
