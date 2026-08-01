@@ -8,6 +8,7 @@ const {
   clearCart,
 } = require("../controllers/cart.controller");
 const { isAuthenticated } = require("../middleware/auth.middleware");
+
 router.use(isAuthenticated);
 
 router.get("/", getCart);

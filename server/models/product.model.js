@@ -10,6 +10,12 @@ const productSchema = new mongoose.Schema(
       trim: true,
     },
 
+    slug: {
+      type: String,
+      unique: true,
+      lowercase: true,
+    },
+
     price: {
       type: Number,
       required: [true, "Price is required"],
@@ -24,6 +30,7 @@ const productSchema = new mongoose.Schema(
     category: {
       type: mongoose.Schema.ObjectId,
       ref: "Category",
+      required: true,
     },
 
     stock: {
@@ -70,5 +77,18 @@ const productSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+// name se slug auto-generate karo, save/validate hone se pehle
+productSchema.pre("validate", function (next) {
+  if (this.name && !this.slug) {
+    this.slug = this.name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+  }
+  next();
+});
 
 module.exports = mongoose.model("Product", productSchema);

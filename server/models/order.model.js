@@ -34,10 +34,38 @@ const orderSchema = new mongoose.Schema(
     ],
 
     shippingAddress: {
-      address: { type: String, required: true },
-      city: { type: String, required: true },
-      state: String,
-      pincode: { type: Number, required: true },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Address",
+      required: true,
+    },
+
+    // Address snapshot — agar user baad me address edit/delete kare
+    // toh purane order ka data change nahi hona chahiye
+    shippingSnapshot: {
+      fullName: {
+        type: String,
+        required: true,
+      },
+      phone: {
+        type: String,
+        required: true,
+      },
+      address: {
+        type: String,
+        required: true,
+      },
+      city: {
+        type: String,
+        required: true,
+      },
+      state: {
+        type: String,
+        required: true,
+      },
+      pincode: {
+        type: String,
+        required: true,
+      },
     },
 
     paymentMethod: {
@@ -77,12 +105,14 @@ const orderSchema = new mongoose.Schema(
       enum: ["pending", "confirmed", "shipped", "delivered", "cancelled"],
       default: "pending",
     },
+
     // Payment info save karo
     paymentInfo: {
       razorpay_order_id: String,
       razorpay_payment_id: String,
       razorpay_signature: String,
     },
+
     deliveredAt: Date,
     paidAt: Date,
   },

@@ -1,11 +1,11 @@
 const Cart = require("../models/cart.model");
-const Order = require("../models/model.Order");
+const Order = require("../models/order.model"); // 👈 sahi path confirm karke likhna
 const Product = require("../models/product.model");
-const User = require("../models/user.model");
+const Address = require("../models/address.model"); // 👈 naya import
 const ApiError = require("../utils/ApiError");
 
-exports.createOrder = async (userId, shippingAddress, paymentMethod) => {
-  // cart fetech
+exports.createOrder = async (userId, shippingAddressId, paymentMethod) => {
+  // Step 1 — Cart fetch karo
   const cart = await Cart.findOne({ user: userId }).populate(
     "items.product",
     "name images price stock",
@@ -14,26 +14,44 @@ exports.createOrder = async (userId, shippingAddress, paymentMethod) => {
     throw new ApiError("Cart is empty", 400);
   }
 
-  //   order items
+  // Step 2 — Address fetch karo (snapshot banane ke liye)
+  const selectedAddress = await Address.findOne({
+    _id: shippingAddressId,
+    user: userId, // security — user apna hi address use kar sake
+  });
+  if (!selectedAddress) {
+    throw new ApiError("Address not found", 404);
+  }
+
+  // Step 3 — Order items banao
   const orderItems = cart.items.map((item) => ({
     product: item.product._id,
-    name: item.product.name, // snapshot
+    name: item.product.name,
     image: item.product.images[0]?.url,
     quantity: item.quantity,
     price: item.product.price,
   }));
 
-  // Step 3 — Price calculate karo
+  // Step 4 — Price calculate karo
   const itemsPrice = cart.totalPrice;
   const taxPrice = Math.round(itemsPrice * 0.18);
   const shippingPrice = itemsPrice > 500 ? 0 : 50;
   const totalPrice = itemsPrice + taxPrice + shippingPrice;
 
-  // Step 4 — Order banao
+  // Step 5 — Order banao (reference + snapshot dono)
   const order = await Order.create({
     user: userId,
     orderItems,
-    shippingAddress,
+    shippingAddress: selectedAddress._id, // 👈 reference
+    shippingSnapshot: {
+      // 👈 frozen copy
+      fullName: selectedAddress.fullName,
+      phone: selectedAddress.phone,
+      address: selectedAddress.address,
+      city: selectedAddress.city,
+      state: selectedAddress.state,
+      pincode: selectedAddress.pincode,
+    },
     paymentMethod,
     itemsPrice,
     taxPrice,
@@ -41,63 +59,17 @@ exports.createOrder = async (userId, shippingAddress, paymentMethod) => {
     totalPrice,
   });
 
-  // Step 5 — Cart clear karo
+  // Step 6 — Cart clear karo
   cart.items = [];
   cart.totalPrice = 0;
   await cart.save();
 
-  // Step 6 — Stock update karo
+  // Step 7 — Stock update karo
   for (const item of orderItems) {
     await Product.findByIdAndUpdate(item.product, {
       $inc: { stock: -item.quantity },
     });
   }
 
-  return order;
-};
-
-exports.getMyOrders = async (userId) => {
-  return await Order.find({ user: userId })
-    .populate("orderItems.product", "name images")
-    .sort({ createdAt: -1 });
-};
-
-exports.getOrderById = async (orderId) => {
-  const order = await Order.findById(orderId)
-
-    .populate("orderItems.product", "name images price")
-    .populate("user", "name email");
-  console.log(orderId);
-
-  if (!order) {
-    throw new ApiError("order not found", 404);
-  }
-  return order;
-};
-exports.cancelOrder = async (orderId) => {
-  const order = await Order.findById(orderId);
-  if (!order) throw new ApiError("Order not found", 404);
-
-  if (order.orderStatus !== "pending")
-    throw new ApiError("Only pending orders can be cancelled", 400);
-
-  order.orderStatus = "cancelled";
-
-  // Stock wapas karo
-  for (const item of order.orderItems) {
-    await Product.findByIdAndUpdate(item.product, {
-      $inc: { stock: +item.quantity },
-    });
-  }
-  return await order.save();
-};
-
-exports.updateOrderStatus = async (orderId, status) => {
-  const order = await Order.findByIdAndUpdate(
-    orderId,
-    { orderStatus: status },
-    { returnDocument: "after" },
-  );
-  if (!order) throw new ApiError("Order not found", 404);
   return order;
 };

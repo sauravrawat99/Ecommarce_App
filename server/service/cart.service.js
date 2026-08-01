@@ -22,6 +22,17 @@ exports.getCart = async (userId) => {
     "name price images stock",
   );
   if (!cart) throw new ApiError("Cart is empty", 404);
+
+  // ✅ Deleted products ke orphan items ko cart se hi hata do
+  const originalLength = cart.items.length;
+  cart.items = cart.items.filter((item) => item.product !== null);
+
+  // Agar kuch remove hua, total recalc karke DB mein save karo
+  if (cart.items.length !== originalLength) {
+    cart.totalPrice = calculateTotal(cart.items);
+    await cart.save();
+  }
+
   return cart;
 };
 

@@ -1,7 +1,7 @@
 // Yeh sab import nahi kiya!
 const AsyncHandle = require("../utils/AsyncHandle");
 const ApiError = require("../utils/ApiError");
-const Order = require("../models/model.Order");
+const Order = require("../models/order.model");
 const {
   createRazorpayOrder,
   verifyPaymentService,
