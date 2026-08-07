@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   createProduct,
   getAllProducts,
+  getByCollection, // 👈 naya import add kiya
   getProduct, // 👈 ab id + slug dono yahi handle karega
   deletebyId,
   updateById,
@@ -20,6 +21,7 @@ router.post(
 );
 
 router.get("/", getAllProducts);
+router.get("/collections/:collectionSlug", getByCollection); // 👈 naya route — YAHAN, /:identifier se PEHLE
 router.get("/:identifier", getProduct); // 👈 ek hi route — id ya slug dono
 router.put("/:id", isAuthenticated, isAdmin, updateById);
 router.delete("/:id", isAuthenticated, isAdmin, deletebyId);

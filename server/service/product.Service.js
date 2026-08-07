@@ -1,4 +1,6 @@
 const Product = require("../models/product.model");
+const Category = require("../models/category.model"); // 👈 naya import
+const ApiError = require("../utils/ApiError"); // 👈 naya import
 
 // Naya helper function — unique slug banane ke liye
 const generateUniqueSlug = async (name) => {
@@ -12,7 +14,6 @@ const generateUniqueSlug = async (name) => {
   let slug = baseSlug;
   let counter = 1;
 
-  // jab tak same slug DB mein exist kare, number badhate raho
   while (await Product.exists({ slug })) {
     slug = `${baseSlug}-${counter}`;
     counter++;
@@ -22,11 +23,11 @@ const generateUniqueSlug = async (name) => {
 };
 
 exports.createProduct = async (productData) => {
-  const slug = await generateUniqueSlug(productData.name); // 👈 naya step
+  const slug = await generateUniqueSlug(productData.name);
 
   const product = await Product.create({
     ...productData,
-    slug, // 👈 productData mein slug add ho gaya
+    slug,
   });
 
   return product;
@@ -36,8 +37,8 @@ exports.getAllProducts = async () => {
   return await Product.find();
 };
 
-exports.getbyid = async (_id) => {
-  return await Product.findById({ _id });
+exports.getbyid = async (id) => {
+  return await Product.findById(id); // 👈 bug fix — { _id } nahi, seedha id
 };
 
 exports.deletebyid = async (id) => {
@@ -50,4 +51,29 @@ exports.updateProduct = async (id, updateData) => {
 
 exports.getBySlug = async (slug) => {
   return await Product.findOne({ slug });
+};
+
+// 👇 naya function — collection slug se filter karke products laata hai
+exports.getProductsByCollection = async (collectionSlug) => {
+  let filter = {};
+
+  if (collectionSlug !== "all" && collectionSlug !== "featured-all") {
+    // slug (jaise "men") se category dhundo, case-insensitive
+    const category = await Category.findOne({
+      name: new RegExp(`^${collectionSlug}$`, "i"),
+    });
+
+    if (!category) {
+      throw new ApiError("Collection not found", 404);
+    }
+
+    filter.category = category._id;
+  }
+
+  if (collectionSlug === "featured-all") {
+    filter.isFeatured = true;
+  }
+
+  const products = await Product.find(filter).populate("category", "name");
+  return products;
 };

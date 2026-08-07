@@ -88,7 +88,6 @@ productSchema.pre("validate", function (next) {
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
   }
-  next();
 });
 
 module.exports = mongoose.model("Product", productSchema);

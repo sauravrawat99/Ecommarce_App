@@ -1,25 +1,49 @@
 import { useSelector, useDispatch } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { fetchProductById } from "../../redux/slices/productSlice";
 import { addToCart } from "../../redux/slices/cartSlice";
 import Button from "../../components/ui/Button";
 
 const ProductDetailPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { id } = useParams();
 
   const { product, loading, error } = useSelector((state) => state.products);
+  const { user } = useSelector((state) => state.auth);
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     dispatch(fetchProductById(id));
   }, [dispatch, id]);
 
-  const handleAddToCart = () => {
-    dispatch(addToCart({ productId: product._id, quantity }));
+  const handleAddToCart = async () => {
+    // 1. Not logged in -> redirect to login instead of silently failing
+    if (!user) {
+      toast.error("Please login to add items to cart");
+      navigate("/login", { state: { from: `/product/${id}` } });
+      return;
+    }
+
+    // 2. Prevent double clicks while request is in flight
+    if (isAdding) return;
+
+    setIsAdding(true);
+    try {
+      // unwrap() throws if the thunk was rejected -> lands in catch below
+      await dispatch(addToCart({ productId: product._id, quantity })).unwrap();
+      toast.success(`${product.name} added to cart`);
+    } catch (err) {
+      // err here is whatever rejectWithValue sent from the thunk
+      toast.error(err || "Could not add item to cart. Please try again.");
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   if (loading) {
@@ -127,11 +151,15 @@ const ProductDetailPage = () => {
 
           <Button
             type="button"
-            disabled={!inStock}
+            disabled={!inStock || isAdding}
             className="w-full mt-auto"
             onClick={handleAddToCart}
           >
-            {inStock ? "Add to Cart" : "Out of Stock"}
+            {!inStock ?
+              "Out of Stock"
+            : isAdding ?
+              "Adding..."
+            : "Add to Cart"}
           </Button>
         </div>
       </div>

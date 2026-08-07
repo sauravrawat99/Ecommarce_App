@@ -6,6 +6,7 @@ import Button from "../../components/ui/Button";
 import AuthLayout from "../../components/AuthLayout";
 import { Link } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
+import Spinner from "../../components/ui/Spinner";
 
 const LoginPage = () => {
   const dispatch = useDispatch();
@@ -63,7 +64,9 @@ const LoginPage = () => {
         </div>
 
         <Button className="w-full" type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
+          {loading ?
+            <Spinner />
+          : "Login"}
         </Button>
       </form>
 

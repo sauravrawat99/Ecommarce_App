@@ -1,40 +1,100 @@
 import { Routes, Route } from "react-router-dom";
-import AdminRoute from "./components/AdminRoute";
+import { Toaster } from "react-hot-toast";
+
+// Layout
 import Navbar from "./components/Navbar";
-import ForgotPassword from "./pages/auth/ForgotPassword";
-import LoginPage from "./pages/auth/LoginPage";
-import ProfilePage from "./pages/auth/ProfilePage";
-import RegisterPage from "./pages/auth/Register";
-import ResetPassword from "./pages/auth/ResetPassword";
+import Footer from "./components/ui/Footer";
+
+// Route Guards
+import AdminRoute from "./components/AdminRoute";
 import PrivateRoute from "./components/PrivateRoutes";
-import CreateProduct from "./pages/products/CreateProduct";
+import RedirectIfAuthenticated from "./components/RedirectIfAuthenticated";
+
+// Public Pages
+import Home from "./pages/Home";
 import ProductList from "./pages/products/ProductList";
 import ProductDetailPage from "./pages/products/ProductDetailPage";
-import Footer from "./components/ui/Footer";
-import Home from "./pages/Home";
-import AdminProductList from "./pages/admin/AdminProductList";
-import EditProduct from "./pages/products/EditProduct"; // 🆕 tu jab bana le tab uncomment/use kar
+
+// Auth Pages
+import LoginPage from "./pages/auth/LoginPage";
+import RegisterPage from "./pages/auth/Register";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
+import ProfilePage from "./pages/auth/ProfilePage";
+
+// User Pages (login required)
+import CartPage from "./pages/CartPage";
+import Address from "./pages/Address"; // 🆕 shipping address / checkout page
+
+// Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminProductList from "./pages/admin/AdminProductList";
+import CreateProduct from "./pages/products/CreateProduct";
+import EditProduct from "./pages/products/EditProduct"; // 🆕 tu jab bana le tab use kar
 
 const App = () => {
   return (
     <>
+      {/* Root level pe ek hi baar — har route pe available rahega */}
+      <Toaster position="top-center" />
+
       <Navbar />
+
       <Routes>
+        {/* ───── Public Routes — koi bhi dekh sakta hai ───── */}
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/products" element={<ProductList />} />
         <Route path="/products/:id" element={<ProductDetailPage />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
+        {/* ───── Auth Routes — agar already logged in hai to redirect ───── */}
+        <Route element={<RedirectIfAuthenticated />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+        </Route>
+
+        {/* ───── Private Routes — login zaroori hai ───── */}
         <Route
           path="/profile"
           element={
             <PrivateRoute>
               <ProfilePage />
             </PrivateRoute>
+          }
+        />
+        <Route
+          path="/cart"
+          element={
+            <PrivateRoute>
+              <CartPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/checkout"
+          element={
+            <PrivateRoute>
+              <Address />
+            </PrivateRoute>
+          }
+        />
+
+        {/* ───── Admin Routes — sirf admin role access kar sakta hai ───── */}
+        <Route
+          path="/admin/dashboard"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/products"
+          element={
+            <AdminRoute>
+              <AdminProductList />
+            </AdminRoute>
           }
         />
         <Route
@@ -45,26 +105,6 @@ const App = () => {
             </AdminRoute>
           }
         />
-
-        {/* 🆕 Admin — Product List */}
-        <Route
-          path="/admin/products"
-          element={
-            <AdminRoute>
-              <AdminProductList />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/dashboard"
-          element={
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
-          }
-        />
-
-        {/* 🆕 Admin — Edit Product (:id dynamic param hai) */}
         <Route
           path="/admin/edit-product/:id"
           element={
@@ -74,6 +114,7 @@ const App = () => {
           }
         />
       </Routes>
+
       <Footer />
     </>
   );

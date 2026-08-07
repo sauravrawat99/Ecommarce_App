@@ -6,6 +6,7 @@ const {
   getAllProducts,
   getbyid,
   getBySlug,
+  getProductsByCollection, // 👈 naya import
   deletebyid,
   updateProduct,
 } = require("../service/product.Service");
@@ -54,9 +55,23 @@ exports.getAllProducts = AsyncHandler(async (req, res) => {
   });
 });
 
+// 👇 naya — collection (jaise "men", "women", "all") se products laata hai
+exports.getByCollection = AsyncHandler(async (req, res) => {
+  const { collectionSlug } = req.params;
+
+  const products = await getProductsByCollection(collectionSlug);
+
+  res.status(200).json({
+    success: true,
+    message: "Products fetched successfully",
+    count: products.length,
+    products,
+  });
+});
+
 // 👇 getById aur getBySlug ki jagah — ek hi function, id ya slug dono handle karega
 exports.getProduct = AsyncHandler(async (req, res) => {
-  const { identifier } = req.params;
+  const { identifier } = req.params; // 👈 bug fix yahan
 
   let product;
 

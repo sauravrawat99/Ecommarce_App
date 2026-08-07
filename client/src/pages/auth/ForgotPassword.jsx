@@ -5,6 +5,7 @@ import AuthLayout from "../../components/AuthLayout";
 import { Link } from "react-router-dom";
 import { Mail, ArrowLeft } from "lucide-react";
 import axios from "axios";
+import Spinner from "../../components/ui/Spinner";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -57,7 +58,7 @@ const ForgotPassword = () => {
           placeholder="Enter your registered email"
         />
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Sending..." : "Send Reset Link"}
+          {loading ? `Sending...${(<Spinner />)}` : "Send Reset Link"}
         </Button>
       </form>
 

@@ -15,6 +15,7 @@ const wishlistRoutes = require("./routes/wishlist.routes");
 const OrderRoutes = require("./routes/order.routes");
 const paymentRoutes = require("./routes/payment.routes");
 const adminRoutes = require("./routes/admin.routes");
+const collectionRoutes = require("./routes/collection.routes");
 
 // const loginLimiter = rateLimit({
 //   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -38,7 +39,7 @@ app.use(morgan("dev"));
 //  from different origins
 app.use(
   cors({
-    origin: ["http://localhost:5173","https://ecommarce-app-flame.vercel.app"],
+    origin: ["http://localhost:5173", "https://ecommarce-app-flame.vercel.app"],
     credentials: true,
   }),
 );
@@ -50,14 +51,15 @@ app.use(express.json());
 app.use(cookiePerser());
 
 // middleware to handle routes related to authentication, such as login and registration
-app.use("/api/auth", authRoutes);
-app.use("/api/products", productRoutes);
-app.use("/api/category", categoryRoutes);
-app.use("/api/cart", cartRouters);
-app.use("/api/wishlist", wishlistRoutes);
-app.use("/api", OrderRoutes);
-app.use("/api/payment", paymentRoutes);
-app.use("/api/admin", adminRoutes);
+app.use("/account", authRoutes); // login, signup, profile
+app.use("/account/orders", OrderRoutes); // order history
+app.use("/products", productRoutes); // CRUD + single product (id/slug)
+app.use("/collections", collectionRoutes); // collection listing (men, women, all)
+app.use("/category", categoryRoutes);
+app.use("/cart", cartRouters);
+app.use("/wishlist", wishlistRoutes);
+app.use("/checkout", paymentRoutes);
+app.use("/admin", adminRoutes);
 
 // test route
 app.get("/", (req, res) => {
@@ -71,3 +73,4 @@ app.use(ErrorMiddleware);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
