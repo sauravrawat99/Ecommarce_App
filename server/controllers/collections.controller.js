@@ -29,13 +29,16 @@ exports.getAllCollections = AsyncHandler(async (req, res) => {
 
 exports.getCollectionBySlug = AsyncHandler(async (req, res) => {
   const { slug } = req.params;
-  const { collection, products } = await getCollectionBySlug(slug);
+  const { collection, products, pagination } = await getCollectionBySlug(
+    slug,
+    req.query,
+  );
 
   res.status(200).json({
     success: true,
     message: "Collection fetched successfully",
     collection,
-    count: products.length,
+    pagination,
     products,
   });
 });

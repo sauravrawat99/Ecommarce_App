@@ -33,11 +33,30 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
 
-    stock: {
-      type: Number,
-      default: 0,
-      min: [0, "Stock cannot be negative"],
-    },
+    variants: [
+      {
+        size: {
+          type: String,
+          enum: ["XS", "S", "M", "L", "XL", "XXL"],
+          required: true,
+        },
+        color: {
+          type: String,
+          required: true,
+        },
+        stock: {
+          type: Number,
+          default: 0,
+          min: 0,
+        },
+        priceOverride: {
+          type: Number, // agar khaali hai, product ka base `price` use hoga
+        },
+        sku: {
+          type: String, // unique identifier har variant ka (jaise "NIKE-AM-M-BLUE")
+        },
+      },
+    ],
 
     images: [
       {
@@ -88,6 +107,7 @@ productSchema.pre("validate", function (next) {
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
   }
+  // next(); // 👈 ye line add karo
 });
 
 module.exports = mongoose.model("Product", productSchema);
