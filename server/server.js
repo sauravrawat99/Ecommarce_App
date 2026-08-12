@@ -1,4 +1,3 @@
-// server.js
 const express = require("express");
 const { dbconnect, PORT } = require("./config/db");
 const authRoutes = require("./routes/auth.routes");
@@ -61,16 +60,15 @@ app.use("/wishlist", wishlistRoutes);
 app.use("/checkout", paymentRoutes);
 app.use("/admin", adminRoutes);
 
-// test route
+// // test route
 app.get("/", (req, res) => {
   res.send("API is running 🚀");
 });
 dbconnect();
 cloudConfig();
-// Middleware to handle errors that occur during request processing and send appropriate
+// // Middleware to handle errors that occur during request processing and send appropriate
 app.use(ErrorMiddleware);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
