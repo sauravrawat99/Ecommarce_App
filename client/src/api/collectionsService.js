@@ -1,5 +1,6 @@
-const { api } = require("./axiosInstance");
+import api from "./axiosInstance";
 
+api;
 export const collectionService = {
   getAllCollection: () => {
     return api.get("/collections");
