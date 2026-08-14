@@ -7,11 +7,13 @@ import cartReducer from "./slices/cartSlice";
 import wishlistReducer from "./slices/wishlistSlice";
 import orderReducer from "./slices/orderSlice";
 import paymentReducer from "./slices/paymentSlice";
+import collectionReducer from "./slices/collectionsSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     products: productReducer,
+    collection: collectionReducer,
     category: categoryReducer,
     cart: cartReducer,
     wishList: wishlistReducer,

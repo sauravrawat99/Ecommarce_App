@@ -11,7 +11,7 @@ export const fetchAllCollections = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await collectionService.getAllCollection();
-      return response.data.allCollections || response.data;
+      return response.data.collections; // 👈 fix: "allCollections" nahi, "collections" hai
     } catch (error) {
       return rejectWithValue(getErrorMessage(error));
     }
@@ -59,7 +59,7 @@ export const deleteCollection = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       await collectionService.deleteCollection(id);
-      return id; 
+      return id;
     } catch (error) {
       return rejectWithValue(getErrorMessage(error));
     }

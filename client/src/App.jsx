@@ -31,6 +31,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProductList from "./pages/admin/AdminProductList";
 import CreateProduct from "./pages/products/CreateProduct";
 import EditProduct from "./pages/products/EditProduct"; // 🆕 tu jab bana le tab use kar
+import Collections from "./pages/collections/collections";
 
 const App = () => {
   return (
@@ -46,6 +47,7 @@ const App = () => {
         <Route path="/products" element={<ProductList />} />
         <Route path="/products/:id" element={<ProductDetailPage />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/collections" element={<Collections />} />
 
         {/* ───── Auth Routes — agar already logged in hai to redirect ───── */}
         <Route element={<RedirectIfAuthenticated />}>
