@@ -27,6 +27,7 @@ exports.getCollectionBySlug = async (slug, queryParams = {}) => {
   const collection = await Collection.findOne({ slug, isActive: true });
   if (!collection) throw new ApiError("Collection not found", 404);
 
+  
   let sortOption = {};
   if (sort_by === "price-low-high") sortOption = { price: 1 };
   else if (sort_by === "price-high-low") sortOption = { price: -1 };

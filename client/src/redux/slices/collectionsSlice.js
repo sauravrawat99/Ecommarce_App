@@ -6,197 +6,85 @@ import { getErrorMessage } from "../../utils/getErrorMessage";
 // Async Thunks
 // ---------------------------------------------------------------------------
 
-export const fetchAllCollections = createAsyncThunk(
-  "collection/fetchAllCollections",
+export const getAllCollection = createAsyncThunk(
+  "collections/fetchAllCollection",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await collectionService.getAllCollection();
-      return response.data.collections; // 👈 fix: "allCollections" nahi, "collections" hai
+      const res = await collectionService.getAllCollection();
+      return res.data;
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error));
+      return rejectWithValue(getErrorMessage(error, "collections not found"));
     }
   },
 );
 
-export const fetchCollectionBySlug = createAsyncThunk(
-  "collection/fetchCollectionBySlug",
-  async ({ slug, queryParams }, { rejectWithValue }) => {
+export const getBySlug = createAsyncThunk(
+  "collections/getBySlug",
+  async (slug, { rejectWithValue }) => {
+    // ✅ fixed
     try {
-      const response = await collectionService.getBySlug(slug, queryParams);
-      return response.data;
+      const res = await collectionService.getBySlug(slug);
+      return res.data;
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error));
+      return rejectWithValue(getErrorMessage(error, "collection not found"));
     }
   },
 );
 
-export const createCollection = createAsyncThunk(
-  "collection/createCollection",
-  async (collectionData, { rejectWithValue }) => {
-    try {
-      const response = await collectionService.createCollection(collectionData);
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(getErrorMessage(error));
-    }
-  },
-);
+// -----------------------------------------------------------------------------
+// createSlice
+// -----------------------------------------------------------------------------
 
-export const updateCollection = createAsyncThunk(
-  "collection/updateCollection",
-  async ({ id, updateData }, { rejectWithValue }) => {
-    try {
-      const response = await collectionService.updateCollection(id, updateData);
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(getErrorMessage(error));
-    }
-  },
-);
-
-export const deleteCollection = createAsyncThunk(
-  "collection/deleteCollection",
-  async (id, { rejectWithValue }) => {
-    try {
-      await collectionService.deleteCollection(id);
-      return id;
-    } catch (error) {
-      return rejectWithValue(getErrorMessage(error));
-    }
-  },
-);
-
-// ---------------------------------------------------------------------------
-// Initial State
-// ---------------------------------------------------------------------------
-const initialState = {
-  collections: [], // navbar/listing ke liye saare collections
-  currentCollection: null, // slug page pe active collection
-  products: [], // currentCollection ke products
-  pagination: {
-    currentPage: 1,
-    perPage: 10,
-    totalCount: 0,
-    totalPages: 0,
-  },
-  loading: false, // list fetch loading
-  detailLoading: false, // slug-based detail fetch loading (separate rakha taaki dono UI states independent rahein)
-  actionLoading: false, // create/update/delete loading (admin actions)
-  error: null,
-};
-
-// ---------------------------------------------------------------------------
-// Slice
-// ---------------------------------------------------------------------------
-const collectionSlice = createSlice({
+export const collectionsSlice = createSlice({
   name: "collection",
-  initialState,
-  reducers: {
-    clearCollectionError: (state) => {
-      state.error = null;
+  initialState: {
+    count: 0,
+    collections: [],
+    collection: "",
+    products: [],
+    pagination: {
+      // ✅ spelling fix + poora object
+      currentPage: 1,
+      perPage: 10,
+      totalCount: 0,
+      totalPages: 1,
     },
-    clearCurrentCollection: (state) => {
-      // jab user collection page se navigate away kare, stale data na dikhe isliye
-      state.currentCollection = null;
-      state.products = [];
-      state.pagination = initialState.pagination;
-    },
-    setCollectionPage: (state, action) => {
-      // pagination ke "next/prev" button pe dispatch karo, phir fetchCollectionBySlug
-      // ko naye page number ke saath dobara call karo
-      state.pagination.currentPage = action.payload;
-    },
-    resetCollectionState: () => initialState,
+    loading: false,
+    error: null,
   },
+  reducers: {},
+
   extraReducers: (builder) => {
     builder
-      // ---------------- fetchAllCollections ----------------
-      .addCase(fetchAllCollections.pending, (state) => {
+      .addCase(getAllCollection.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchAllCollections.fulfilled, (state, action) => {
+      .addCase(getAllCollection.fulfilled, (state, action) => {
         state.loading = false;
-        state.collections = action.payload;
+        state.count = action.payload.count;
+        state.collections = action.payload.collections;
       })
-      .addCase(fetchAllCollections.rejected, (state, action) => {
+      .addCase(getAllCollection.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-
-      // ---------------- fetchCollectionBySlug ----------------
-      .addCase(fetchCollectionBySlug.pending, (state) => {
-        state.detailLoading = true;
+      .addCase(getBySlug.pending, (state) => {
+        state.loading = true;
         state.error = null;
       })
-      .addCase(fetchCollectionBySlug.fulfilled, (state, action) => {
-        state.detailLoading = false;
-        state.currentCollection = action.payload.collection;
+      .addCase(getBySlug.fulfilled, (state, action) => {
+        state.loading = false;
         state.products = action.payload.products;
-        state.pagination = action.payload.pagination;
+        state.collection = action.payload.collection;
+        state.pagination = action.payload.pagination; // ✅ poora pagination object store karo
+        state.count = action.payload.pagination.totalCount; // ✅ agar sirf count chahiye alag se bhi
       })
-      .addCase(fetchCollectionBySlug.rejected, (state, action) => {
-        state.detailLoading = false;
-        state.error = action.payload;
-      })
-
-      // ---------------- createCollection ----------------
-      .addCase(createCollection.pending, (state) => {
-        state.actionLoading = true;
-        state.error = null;
-      })
-      .addCase(createCollection.fulfilled, (state, action) => {
-        state.actionLoading = false;
-        state.collections.push(action.payload);
-      })
-      .addCase(createCollection.rejected, (state, action) => {
-        state.actionLoading = false;
-        state.error = action.payload;
-      })
-
-      // ---------------- updateCollection ----------------
-      .addCase(updateCollection.pending, (state) => {
-        state.actionLoading = true;
-        state.error = null;
-      })
-      .addCase(updateCollection.fulfilled, (state, action) => {
-        state.actionLoading = false;
-        const index = state.collections.findIndex(
-          (c) => c._id === action.payload._id,
-        );
-        if (index !== -1) state.collections[index] = action.payload;
-        if (state.currentCollection?._id === action.payload._id) {
-          state.currentCollection = action.payload;
-        }
-      })
-      .addCase(updateCollection.rejected, (state, action) => {
-        state.actionLoading = false;
-        state.error = action.payload;
-      })
-
-      // ---------------- deleteCollection ----------------
-      .addCase(deleteCollection.pending, (state) => {
-        state.actionLoading = true;
-        state.error = null;
-      })
-      .addCase(deleteCollection.fulfilled, (state, action) => {
-        state.actionLoading = false;
-        state.collections = state.collections.filter(
-          (c) => c._id !== action.payload,
-        );
-      })
-      .addCase(deleteCollection.rejected, (state, action) => {
-        state.actionLoading = false;
+      .addCase(getBySlug.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload;
       });
   },
 });
 
-export const {
-  clearCollectionError,
-  clearCurrentCollection,
-  setCollectionPage,
-  resetCollectionState,
-} = collectionSlice.actions;
-
-export default collectionSlice.reducer;
+export default collectionsSlice.reducer;

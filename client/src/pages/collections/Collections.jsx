@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import CollectionCard from "./collectionCard";
-import { fetchAllCollections } from "../../redux/slices/collectionsSlice";
+import { getAllCollection } from "../../redux/slices/collectionsSlice";
 
 const Collections = () => {
   const dispatch = useDispatch();
@@ -11,8 +11,10 @@ const Collections = () => {
     (state) => state.collection,
   );
 
+  console.log(collections);
+
   useEffect(() => {
-    dispatch(fetchAllCollections());
+    dispatch(getAllCollection());
   }, [dispatch]);
 
   if (loading) return <div>Loading collections...</div>;

@@ -14,6 +14,8 @@ import RedirectIfAuthenticated from "./components/RedirectIfAuthenticated";
 import Home from "./pages/Home";
 import ProductList from "./pages/products/ProductList";
 import ProductDetailPage from "./pages/products/ProductDetailPage";
+import Collections from "./pages/collections/collections";
+import {Slug} from "./pages/collections/Slug";
 
 // Auth Pages
 import LoginPage from "./pages/auth/LoginPage";
@@ -31,7 +33,6 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProductList from "./pages/admin/AdminProductList";
 import CreateProduct from "./pages/products/CreateProduct";
 import EditProduct from "./pages/products/EditProduct"; // 🆕 tu jab bana le tab use kar
-import Collections from "./pages/collections/collections";
 
 const App = () => {
   return (
@@ -48,6 +49,7 @@ const App = () => {
         <Route path="/products/:id" element={<ProductDetailPage />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/collections" element={<Collections />} />
+        <Route path="/collections/:slug" element={<Slug />} />
 
         {/* ───── Auth Routes — agar already logged in hai to redirect ───── */}
         <Route element={<RedirectIfAuthenticated />}>
