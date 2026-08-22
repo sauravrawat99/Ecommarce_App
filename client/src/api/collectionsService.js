@@ -17,6 +17,10 @@ export const collectionService = {
     return api.put(`/collections/${id}`, bodyData);
   },
 
+  getCollectionById: (id) => {
+    return api.get(`/collections/id/${id}`);
+  },
+
   deleteCollection: (id) => {
     return api.delete(`/collections/${id}`);
   },

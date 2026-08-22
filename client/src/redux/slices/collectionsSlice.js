@@ -61,6 +61,31 @@ export const updateCollection = createAsyncThunk(
   },
 );
 
+export const getCollectionById = createAsyncThunk(
+  "collections/getById",
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await collectionService.getCollectionById(id);
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error, "collection not found"));
+    }
+  },
+);
+
+export const deleteCollection = createAsyncThunk(
+  "collections/delete",
+  async (id, { rejectWithValue }) => {
+    try {
+      await collectionService.deleteCollection(id);
+      return id; // deleted collection ki id return kar rahe hain, list se hataane ke liye
+    } catch (error) {
+      return rejectWithValue(
+        getErrorMessage(error, "collection deletion failed"),
+      );
+    }
+  },
+);
 // ---------------------------------------------------------------------------
 // Initial State
 // sirf server se aane wala data — filter/sort URL mein rehte hain, yahan nahi
@@ -153,6 +178,33 @@ export const collectionsSlice = createSlice({
       .addCase(updateCollection.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
+      })
+      .addCase(getCollectionById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getCollectionById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.collection = action.payload.collection;
+      })
+      .addCase(getCollectionById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(deleteCollection.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteCollection.fulfilled, (state, action) => {
+        state.loading = false;
+        state.collections = state.collections.filter(
+          (c) => c._id !== action.payload,
+        );
+        state.count -= 1;
+      })
+      .addCase(deleteCollection.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

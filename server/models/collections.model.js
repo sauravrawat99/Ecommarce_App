@@ -9,7 +9,6 @@ const collectionSchema = new mongoose.Schema(
     },
     slug: {
       type: String,
-      required: true,
       unique: true,
       lowercase: true,
     },
@@ -21,7 +20,7 @@ const collectionSchema = new mongoose.Schema(
     type: {
       type: String,
       enum: ["manual", "smart"],
-      default: "manual",
+      default: "smart",
     },
 
     // Manual collection ke liye — admin ne khud jo products chune
@@ -50,5 +49,15 @@ const collectionSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
-
+collectionSchema.pre("validate", function (next) {
+  if (this.name && !this.slug) {
+    this.slug = this.name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+  }
+  // next(); // 👈 ye line add karo
+});
 module.exports = mongoose.model("Collection", collectionSchema);

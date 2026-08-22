@@ -34,6 +34,8 @@ import AdminProductList from "./pages/admin/AdminProductList";
 import CreateProduct from "./pages/products/CreateProduct";
 import EditProduct from "./pages/products/EditProduct"; // 🆕 tu jab bana le tab use kar
 import CreateCollection from "./pages/collections/createCollection";
+import UpdateCollection from "./pages/collections/UpdateCollection";
+import CollectionsList from "./pages/collections/CollectionsList";
 
 const App = () => {
   return (
@@ -119,12 +121,24 @@ const App = () => {
           }
         />
         <Route
-          path="admin/create/collection"
+          path="/admin/collections"
+          element={
+            <AdminRoute>
+              <CollectionsList />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/collection/create"
           element={
             <AdminRoute>
               <CreateCollection />
             </AdminRoute>
           }
+        />
+        <Route
+          path="/admin/collection/:id/edit"
+          element={<AdminRoute> {<UpdateCollection />}</AdminRoute>}
         />
       </Routes>
 

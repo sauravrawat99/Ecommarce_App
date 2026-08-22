@@ -6,10 +6,17 @@ const {
   getCollectionBySlug,
   updateCollection,
   deleteCollection,
+  getCollectionById,
 } = require("../service/collections.service");
 
 exports.createCollection = AsyncHandler(async (req, res) => {
-  const collection = await createCollection(req.body);
+  const collectionData = { ...req.body };
+
+  if (req.file) {
+    collectionData.image = req.file; // ya jaise bhi tera service Cloudinary pe upload karta hai
+  }
+
+  const collection = await createCollection(collectionData);
   res.status(201).json({
     success: true,
     message: "Collection created successfully",
@@ -29,10 +36,8 @@ exports.getAllCollections = AsyncHandler(async (req, res) => {
 
 exports.getCollectionBySlug = AsyncHandler(async (req, res) => {
   const { slug } = req.params;
-  const { collection, products, pagination } = await getCollectionBySlug(
-    slug,
-    req.query,
-  );
+  const { collection, products, pagination, facets } =
+    await getCollectionBySlug(slug, req.query);
 
   res.status(200).json({
     success: true,
@@ -40,6 +45,7 @@ exports.getCollectionBySlug = AsyncHandler(async (req, res) => {
     collection,
     pagination,
     products,
+    facets,
   });
 });
 
@@ -59,5 +65,15 @@ exports.deleteCollection = AsyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "Collection deleted successfully",
+  });
+});
+
+exports.getCollectionById = AsyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const collection = await getCollectionById(id);
+  res.status(200).json({
+    success: true,
+    message: "Collection fetched successfully",
+    collection,
   });
 });
