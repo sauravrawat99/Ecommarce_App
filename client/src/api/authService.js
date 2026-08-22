@@ -5,22 +5,22 @@ export const authService = {
   },
 
   login: (credentials) => {
-    return api.post("/auth/login", credentials); // ← return
+    return api.post("/account/login", credentials); // ← return
   },
 
   logout: () => {
-    return api.get("/auth/logout"); // ← GET nahi, POST hai tera backend me
+    return api.get("/account/logout"); // ← GET nahi, POST hai tera backend me
   },
 
   getProfile: () => {
-    return api.get("/auth/me"); // ← return
+    return api.get("/account/me"); // ← return
   },
 
   forgotPassword: (email) => {
-    return api.post("/auth/forgot-password", { email }); // ← return
+    return api.post("/account/forgot-password", { email }); // ← return
   },
 
   resetPassword: (data) => {
-    return api.post("/auth/reset-password", data); // ← return
+    return api.post("/account/reset-password", data); // ← return
   },
 };

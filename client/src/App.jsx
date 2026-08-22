@@ -15,7 +15,7 @@ import Home from "./pages/Home";
 import ProductList from "./pages/products/ProductList";
 import ProductDetailPage from "./pages/products/ProductDetailPage";
 import Collections from "./pages/collections/collections";
-import {Slug} from "./pages/collections/Slug";
+import Slug from "./pages/collections/Slug";
 
 // Auth Pages
 import LoginPage from "./pages/auth/LoginPage";
@@ -33,6 +33,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProductList from "./pages/admin/AdminProductList";
 import CreateProduct from "./pages/products/CreateProduct";
 import EditProduct from "./pages/products/EditProduct"; // 🆕 tu jab bana le tab use kar
+import CreateCollection from "./pages/collections/createCollection";
 
 const App = () => {
   return (
@@ -114,6 +115,14 @@ const App = () => {
           element={
             <AdminRoute>
               <EditProduct />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="admin/create/collection"
+          element={
+            <AdminRoute>
+              <CreateCollection />
             </AdminRoute>
           }
         />

@@ -1,13 +1,12 @@
 import api from "./axiosInstance";
 
-api;
 export const collectionService = {
   getAllCollection: () => {
     return api.get("/collections");
   },
 
-  getBySlug: (slug) => {
-    return api.get(`/collections/${slug}`);
+  getBySlug: (slug, queryParams) => {
+    return api.get(`/collections/${slug}`, { params: queryParams });
   },
 
   createCollection: (bodyData) => {

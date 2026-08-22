@@ -18,12 +18,16 @@ export const getAllCollection = createAsyncThunk(
   },
 );
 
+// ✅ filters (minPrice, maxPrice, brand, category, size, color, sort_by) sab
+//    URL se aate hain aur "filters" object ke andar pass hote hain
 export const getBySlug = createAsyncThunk(
   "collections/getBySlug",
-  async (slug, { rejectWithValue }) => {
-    // ✅ fixed
+  async ({ slug, filters = {}, page = 1 }, { rejectWithValue }) => {
     try {
-      const res = await collectionService.getBySlug(slug);
+      const res = await collectionService.getBySlug(slug, {
+        ...filters,
+        page,
+      });
       return res.data;
     } catch (error) {
       return rejectWithValue(getErrorMessage(error, "collection not found"));
@@ -31,27 +35,66 @@ export const getBySlug = createAsyncThunk(
   },
 );
 
+export const createCollection = createAsyncThunk(
+  "collections/create",
+  async (bodyData, { rejectWithValue }) => {
+    try {
+      const res = await collectionService.createCollection(bodyData);
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(
+        getErrorMessage(error, "collection creation failed"),
+      );
+    }
+  },
+);
+
+export const updateCollection = createAsyncThunk(
+  "collection/update",
+  async ({ id, collectionData }, { rejectWithValue }) => {
+    try {
+      const res = await collectionService.updateCollection(id, collectionData);
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error, "collection not found"));
+    }
+  },
+);
+
+// ---------------------------------------------------------------------------
+// Initial State
+// sirf server se aane wala data — filter/sort URL mein rehte hain, yahan nahi
+// ---------------------------------------------------------------------------
+
+const initialState = {
+  count: 0,
+  collections: [],
+  collection: "",
+  products: [],
+  pagination: {
+    currentPage: 1,
+    perPage: 10,
+    totalCount: 0,
+    totalPages: 1,
+  },
+  facets: {
+    brands: [],
+    categories: [],
+    sizes: [],
+    colors: [],
+    priceRanges: [],
+  },
+  loading: false,
+  error: null,
+};
+
 // -----------------------------------------------------------------------------
 // createSlice
 // -----------------------------------------------------------------------------
 
 export const collectionsSlice = createSlice({
   name: "collection",
-  initialState: {
-    count: 0,
-    collections: [],
-    collection: "",
-    products: [],
-    pagination: {
-      // ✅ spelling fix + poora object
-      currentPage: 1,
-      perPage: 10,
-      totalCount: 0,
-      totalPages: 1,
-    },
-    loading: false,
-    error: null,
-  },
+  initialState,
   reducers: {},
 
   extraReducers: (builder) => {
@@ -77,12 +120,39 @@ export const collectionsSlice = createSlice({
         state.loading = false;
         state.products = action.payload.products;
         state.collection = action.payload.collection;
-        state.pagination = action.payload.pagination; // ✅ poora pagination object store karo
-        state.count = action.payload.pagination.totalCount; // ✅ agar sirf count chahiye alag se bhi
+        state.pagination = action.payload.pagination;
+        state.facets = action.payload.facets;
+        state.count = action.payload.pagination.totalCount;
       })
       .addCase(getBySlug.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(createCollection.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createCollection.fulfilled, (state, action) => {
+        state.loading = false;
+        state.collections.push(action.payload.collection);
+        state.count += 1;
+      })
+      .addCase(createCollection.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(updateCollection.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateCollection.fulfilled, (state, action) => {
+        state.collection = action.payload.collection || action.payload;
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(updateCollection.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
       });
   },
 });
