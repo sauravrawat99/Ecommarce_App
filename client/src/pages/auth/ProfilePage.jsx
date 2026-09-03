@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getProfile, logoutUser } from "../../redux/slices/authSlice";
 import { useNavigate } from "react-router-dom";
-import Button from "../../components/ui/Button";
 import { Mail, ShieldCheck } from "lucide-react";
 
 const ProfilePage = () => {
@@ -73,9 +72,9 @@ const ProfilePage = () => {
           )}
 
           <div className="mt-6 sm:mt-8">
-            <Button onClick={handleLogout} variant="danger" className="w-full">
+            <button onClick={handleLogout} variant="danger" className="w-full">
               Logout
-            </Button>
+            </button>
           </div>
         </div>
       </div>
