@@ -1,22 +1,25 @@
 const Bedge = ({ children, variant = "amber", size = "sm" }) => {
+  // Same variant keys as before (amber/indigo/success/danger/outline) —
+  // sirf color values ab Feacherd palette follow karte hain
   const variantClasses = {
-    amber: "bg-amber-500 text-white",
-    indigo: "bg-indigo-600 text-white",
-    success: "bg-emerald-500 text-white",
-    danger: "bg-red-500 text-white",
-    outline: "bg-white text-gray-700 border border-gray-300",
+    amber: "bg-[#FF5A1F] text-white", // accent
+    indigo: "bg-[#14161A] text-white", // ink
+    success: "bg-emerald-600 text-white",
+    danger: "bg-[#E5484D] text-white",
+    outline: "bg-white text-[#14161A] border border-[#14161A]/20",
   };
 
   const sizeClasses = {
-    sm: "text-xs w-5 h-5",
-    md: "text-sm px-2.5 py-0.5",
+    sm: "text-[10px] font-bold w-5 h-5",
+    md: "text-xs font-bold px-2.5 py-1 tracking-wide uppercase",
   };
 
-  // Small circular badge (cart/wishlist count) vs pill badge (sale/status tags)
+  // Signature shape: square everywhere, no circles/pills — matches the
+  // accent-square motif used in Navbar/Footer
   const shapeClass =
     size === "sm" ?
-      "rounded-full flex items-center justify-center"
-    : "rounded-md";
+      "rounded-[3px] flex items-center justify-center"
+    : "rounded-[3px]";
 
   return (
     <span
