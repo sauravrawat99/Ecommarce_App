@@ -74,6 +74,20 @@ export const deleteProduct = createAsyncThunk(
   },
 );
 
+export const fetchSearch = createAsyncThunk(
+  "fetch/search",
+  async (query, { rejectWithValue }) => {
+    try {
+      const res = await productsService.getSearch(query);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to search products",
+      );
+    }
+  },
+);
+
 // ─── Slice ─────────────────────────────────────────────
 
 const productSlice = createSlice({
@@ -156,6 +170,14 @@ const productSlice = createSlice({
       // Delete
       .addCase(deleteProduct.fulfilled, (state, action) => {
         state.products = state.products.filter((p) => p._id !== action.payload);
+      })
+      .addCase(fetchSearch.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSearch.fulfilled, (state, action) => {
+        state.products = action.payload.products || action.payload;
+        state.loading = false;
       });
   },
 });
