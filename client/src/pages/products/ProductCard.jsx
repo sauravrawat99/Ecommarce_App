@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 const ProductCard = ({ product }) => {
   const imageUrl =
     product.images?.[0]?.url || "https://placehold.co/400x400?text=No+Image";
-  const inStock = product.stock > 0;
 
   return (
     <Link to={`/products/${product._id}`} className="group block">
@@ -21,14 +20,14 @@ const ProductCard = ({ product }) => {
           />
 
           {/* Stock Badge */}
-          {!inStock && (
+          {/* {!inStock && (
             <span
               className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-black/80 text-white 
                               text-[10px] sm:text-xs px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full"
             >
               Out of Stock
-            </span>
-          )}
+            </span> */}
+          {/* )} */}
         </div>
 
         {/* Details */}
