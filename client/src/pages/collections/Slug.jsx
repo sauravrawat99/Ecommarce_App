@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
 
@@ -49,22 +49,37 @@ const Slug = () => {
 
   const limit = Number(searchParams.get("limit")) || 10;
 
+  const selectedBrandsParam = selectedBrands.join(",");
+  const selectedCategoriesParam = selectedCategories.join(",");
+  const selectedSizesParam = selectedSizes.join(",");
+  const selectedColorsParam = selectedColors.join(",");
+
   // ==========================================
   // Clean Filters — API ke liye arrays ko comma string mein badlo
   // ==========================================
 
-  const filters = {
-    limit,
-    ...(minPrice && { minPrice }),
-    ...(maxPrice && { maxPrice }),
-    ...(selectedBrands.length && { brand: selectedBrands.join(",") }),
-    ...(selectedCategories.length && {
-      category: selectedCategories.join(","),
+  const filters = useMemo(
+    () => ({
+      limit,
+      ...(minPrice && { minPrice }),
+      ...(maxPrice && { maxPrice }),
+      ...(selectedBrandsParam && { brand: selectedBrandsParam }),
+      ...(selectedCategoriesParam && { category: selectedCategoriesParam }),
+      ...(selectedSizesParam && { size: selectedSizesParam }),
+      ...(selectedColorsParam && { color: selectedColorsParam }),
+      ...(sort_by && { sort_by }),
     }),
-    ...(selectedSizes.length && { size: selectedSizes.join(",") }),
-    ...(selectedColors.length && { color: selectedColors.join(",") }),
-    ...(sort_by && { sort_by }),
-  };
+    [
+      limit,
+      minPrice,
+      maxPrice,
+      selectedBrandsParam,
+      selectedCategoriesParam,
+      selectedSizesParam,
+      selectedColorsParam,
+      sort_by,
+    ],
+  );
 
   // ==========================================
   // API CALL
@@ -82,14 +97,7 @@ const Slug = () => {
     dispatch,
     slug,
     page,
-    minPrice,
-    maxPrice,
-    selectedBrands.join(","),
-    selectedCategories.join(","),
-    selectedSizes.join(","),
-    selectedColors.join(","),
-    sort_by,
-    limit,
+    filters,
   ]);
 
   // ==========================================
@@ -389,7 +397,7 @@ const Slug = () => {
               <h2 className="text-2xl font-semibold">No Products Found</h2>
               <p className="text-gray-500 mt-2">Try changing your filters.</p>
             </div>
-          : <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          : <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 h-screen gap-6">
               {products.map((product) => (
                 <SlugCard key={product._id} props={product} />
               ))}
