@@ -5,10 +5,12 @@ const Spinner = ({ size = "md", color = "indigo" }) => {
     lg: "w-12 h-12 border-4",
   };
 
+  // Same key names as before (indigo/white/gray) — retinted to the
+  // Feacherd palette so every loading state matches the rest of the app
   const colorClasses = {
-    indigo: "border-indigo-600 border-t-transparent",
+    indigo: "border-[#FF5A1F] border-t-transparent", // accent
     white: "border-white border-t-transparent",
-    gray: "border-gray-400 border-t-transparent",
+    gray: "border-[#5B6472] border-t-transparent", // slate
   };
 
   return (
