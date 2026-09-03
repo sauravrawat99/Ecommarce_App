@@ -77,3 +77,14 @@ exports.getProductsByCollection = async (collectionSlug) => {
   const products = await Product.find(filter).populate("category", "name");
   return products;
 };
+
+exports.searchProducts = async (query) => {
+  if (!query || !query.trim()) return [];
+  const regex = new RegExp(query.trim(), "i");
+
+  const products = await Product.find({
+    $or: [{ name: regex }, { brand: regex }, { description: regex }],
+  });
+
+  return products;
+};

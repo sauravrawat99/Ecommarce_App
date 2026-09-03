@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { wishlistService } from "../../api/wishlistService";
 
+// ---------- Thunks ----------
+
 // 1. Wishlist fetch karo
 export const getWishlist = createAsyncThunk(
   "wishlist/getWishlist",
@@ -10,7 +12,7 @@ export const getWishlist = createAsyncThunk(
       return res.data.wishlist;
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.message || "Wishlist not found",
+        err.response?.data?.message || "Failed to fetch wishlist",
       );
     }
   },
@@ -46,17 +48,28 @@ export const removeFromWishlist = createAsyncThunk(
   },
 );
 
+// ---------- Slice ----------
+
+const initialState = {
+  items: [],
+  loading: false, // getWishlist (fetch) ke liye
+  mutating: false, // add/remove ke liye — separate rakha taaki fetch aur mutation ka loading UI mix na ho
+  error: null,
+};
+
 const wishlistSlice = createSlice({
   name: "wishlist",
-  initialState: {
-    items: [],
-    loading: false,
-    error: null,
+  initialState,
+  reducers: {
+    clearWishlistError: (state) => {
+      state.error = null;
+    },
+    // logout par wishlist reset karne ke liye
+    resetWishlist: () => initialState,
   },
-  reducers: {},
   extraReducers: (builder) => {
     builder
-      // GET
+      // ----- GET -----
       .addCase(getWishlist.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -70,32 +83,35 @@ const wishlistSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ADD
+      // ----- ADD -----
       .addCase(addToWishlist.pending, (state) => {
-        state.loading = true;
+        state.mutating = true;
+        state.error = null;
       })
       .addCase(addToWishlist.fulfilled, (state, action) => {
-        state.loading = false;
+        state.mutating = false;
         state.items = action.payload;
       })
       .addCase(addToWishlist.rejected, (state, action) => {
-        state.loading = false;
+        state.mutating = false;
         state.error = action.payload;
       })
 
-      // REMOVE
+      // ----- REMOVE -----
       .addCase(removeFromWishlist.pending, (state) => {
-        state.loading = true;
+        state.mutating = true;
+        state.error = null;
       })
       .addCase(removeFromWishlist.fulfilled, (state, action) => {
-        state.loading = false;
+        state.mutating = false;
         state.items = action.payload;
       })
       .addCase(removeFromWishlist.rejected, (state, action) => {
-        state.loading = false;
+        state.mutating = false;
         state.error = action.payload;
       });
   },
 });
 
+export const { clearWishlistError, resetWishlist } = wishlistSlice.actions;
 export default wishlistSlice.reducer;

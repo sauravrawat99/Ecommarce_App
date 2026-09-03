@@ -9,6 +9,7 @@ const {
   getProductsByCollection, // 👈 naya import
   deletebyid,
   updateProduct,
+  searchProducts,
 } = require("../service/product.Service");
 const {
   validateCreateProduct,
@@ -139,5 +140,17 @@ exports.updateById = AsyncHandler(async (req, res) => {
     success: true,
     message: "Product updated successfully",
     product: updated,
+  });
+});
+
+exports.searchProducts = AsyncHandler(async (req, res) => {
+  const { q } = req.query;
+  console.log(searchProducts);
+  const products = await searchProducts(q);
+  res.status(200).json({
+    success: true,
+    message: "Search results fetched successfully",
+    count: products.length,
+    products,
   });
 });

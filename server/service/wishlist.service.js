@@ -25,6 +25,8 @@ exports.addToWishlist = async (userId, productId) => {
 
   user.wishlist.push(productId);
   await user.save();
+
+  await user.populate("wishlist", "name price images");
   return user.wishlist;
 };
 
@@ -36,5 +38,7 @@ exports.removeFromWishlist = async (userId, productId) => {
   user.wishlist = user.wishlist.filter((id) => id.toString() !== productId);
 
   await user.save();
+
+  await user.populate("wishlist", "name price images");
   return user.wishlist;
 };

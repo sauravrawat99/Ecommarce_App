@@ -4,7 +4,7 @@ const {
   getWishlist,
   addToWishlist,
   removeFromWishlist,
-} = require("../controllers/wishlist.controller");
+} = require("../controllers/wishList.controller");
 const { isAuthenticated } = require("../middleware/auth.middleware");
 router.use(isAuthenticated);
 
