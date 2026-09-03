@@ -27,6 +27,7 @@ import ProfilePage from "./pages/auth/ProfilePage";
 // User Pages (login required)
 import CartPage from "./pages/CartPage";
 import Address from "./pages/Address"; // 🆕 shipping address / checkout page
+import WishlistPage from "./pages/WishlistPage";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -36,8 +37,19 @@ import EditProduct from "./pages/products/EditProduct"; // 🆕 tu jab bana le t
 import CreateCollection from "./pages/collections/createCollection";
 import UpdateCollection from "./pages/collections/UpdateCollection";
 import CollectionsList from "./pages/collections/CollectionsList";
+import { useDispatch, useSelector } from "react-redux";
+import { getWishlist } from "./redux/slices/wishlistSlice";
+import { useEffect } from "react";
 
 const App = () => {
+  const dispatch = useDispatch();
+  const { isLoggedIn } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      dispatch(getWishlist());
+    }
+  }, [isLoggedIn, dispatch]);
   return (
     <>
       {/* Root level pe ek hi baar — har route pe available rahega */}
@@ -83,6 +95,14 @@ const App = () => {
           element={
             <PrivateRoute>
               <Address />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/wishlist"
+          element={
+            <PrivateRoute>
+              <WishlistPage />
             </PrivateRoute>
           }
         />
