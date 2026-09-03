@@ -2,7 +2,6 @@ import { useState } from "react";
 import Input from "../../components/ui/Input";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../redux/slices/authSlice";
-import Button from "../../components/ui/Button";
 import AuthLayout from "../../components/AuthLayout";
 import { Link } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
@@ -63,11 +62,11 @@ const LoginPage = () => {
           </Link>
         </div>
 
-        <Button className="w-full" type="submit" disabled={loading}>
+        <button className="w-full" type="submit" disabled={loading}>
           {loading ?
             <Spinner />
           : "Login"}
-        </Button>
+        </button>
       </form>
 
       {user && (
