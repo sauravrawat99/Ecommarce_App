@@ -2,14 +2,14 @@ import api from "./axiosInstance";
 
 export const wishlistService = {
   getWishlist: () => {
-    return api.get("/");
+    return api.get("/wishlist");
   },
 
   addToWishlist: (productId) => {
-    return api.post("/add", { productId });
+    return api.post("wishlist/add", { productId });
   },
 
   removeFromWishlist: (productId) => {
-    return api.delete(`/${productId}`);
+    return api.delete(`/wishlist/${productId}`);
   },
 };
