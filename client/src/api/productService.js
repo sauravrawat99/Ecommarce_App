@@ -20,4 +20,7 @@ export const productsService = {
   deleteProduct: (id) => {
     return api.delete(`/products/${id}`);
   },
+  getSearch: (queryParams) => {
+    return api.get(`/product/search/${queryParams}`);
+  },
 };
