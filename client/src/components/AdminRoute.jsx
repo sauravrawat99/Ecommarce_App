@@ -1,8 +1,8 @@
 // src/components/AdminRoute.jsx
 import { useSelector } from "react-redux";
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 
-const AdminRoute = ({ children }) => {
+const AdminRoute = () => {
   const { isLoggedIn, user } = useSelector((state) => state.auth);
 
   if (!isLoggedIn) {
@@ -14,7 +14,7 @@ const AdminRoute = ({ children }) => {
     return <Navigate to="/" />; // ya koi "Access Denied" page bana sakta hai
   }
 
-  return children;
+  return <Outlet />;
 };
 
 export default AdminRoute;
