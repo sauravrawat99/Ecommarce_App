@@ -12,7 +12,6 @@ import RedirectIfAuthenticated from "./components/RedirectIfAuthenticated";
 
 // Public Pages
 import Home from "./pages/Home";
-import ProductList from "./pages/products/ProductList";
 import ProductDetailPage from "./pages/products/ProductDetailPage";
 import Collections from "./pages/collections/collections";
 import Slug from "./pages/collections/Slug";
@@ -52,117 +51,59 @@ const App = () => {
   }, [isLoggedIn, dispatch]);
   return (
     <>
-      {/* Root level pe ek hi baar — har route pe available rahega */}
-      <Toaster position="top-center" />
+      {" "}
+      <div className="h-screen flex flex-col">
+        <Navbar />
 
-      <Navbar />
+        {/* Root level pe ek hi baar — har route pe available rahega */}
+        <Toaster position="top-center" />
 
-      <Routes>
-        {/* ───── Public Routes — koi bhi dekh sakta hai ───── */}
-        <Route path="/" element={<Home />} />
-        <Route path="/products" element={<ProductList />} />
-        <Route path="/products/:id" element={<ProductDetailPage />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
-        <Route path="/collections" element={<Collections />} />
-        <Route path="/collections/:slug" element={<Slug />} />
+        <main className="flex-1">
+          {" "}
+          <Routes>
+            {/* ───── Public Routes — koi bhi dekh sakta hai ───── */}
+            <Route path="/" element={<Home />} />
+            <Route path="/product/:id" element={<ProductDetailPage />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/collections" element={<Collections />} />
+            <Route path="/collections/:slug" element={<Slug />} />
 
-        {/* ───── Auth Routes — agar already logged in hai to redirect ───── */}
-        <Route element={<RedirectIfAuthenticated />}>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-        </Route>
+            {/* ───── Auth Routes — agar already logged in hai to redirect ───── */}
+            <Route element={<RedirectIfAuthenticated />}>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+            </Route>
 
-        {/* ───── Private Routes — login zaroori hai ───── */}
-        <Route
-          path="/profile"
-          element={
-            <PrivateRoute>
-              <ProfilePage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/cart"
-          element={
-            <PrivateRoute>
-              <CartPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/checkout"
-          element={
-            <PrivateRoute>
-              <Address />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/wishlist"
-          element={
-            <PrivateRoute>
-              <WishlistPage />
-            </PrivateRoute>
-          }
-        />
+            {/* ───── Private Routes — login zaroori hai ───── */}
 
-        {/* ───── Admin Routes — sirf admin role access kar sakta hai ───── */}
-        <Route
-          path="/admin/dashboard"
-          element={
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/products"
-          element={
-            <AdminRoute>
-              <AdminProductList />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/create-product"
-          element={
-            <AdminRoute>
-              <CreateProduct />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/edit-product/:id"
-          element={
-            <AdminRoute>
-              <EditProduct />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/collections"
-          element={
-            <AdminRoute>
-              <CollectionsList />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/collection/create"
-          element={
-            <AdminRoute>
-              <CreateCollection />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/collection/:id/edit"
-          element={<AdminRoute> {<UpdateCollection />}</AdminRoute>}
-        />
-      </Routes>
+            <Route element={<PrivateRoute />}>
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/checkout" element={<Address />} />
+              <Route path="/wishlist" element={<WishlistPage />} />
+            </Route>
 
-      <Footer />
+            {/* ───── Admin Routes — sirf admin role access kar sakta hai ───── */}
+            <Route element={<AdminRoute />}>
+              <Route path="/admin/products" element={<AdminProductList />} />
+              <Route path="/admin/create-product" element={<CreateProduct />} />
+              <Route path="/admin/edit-product/:id" element={<EditProduct />} />
+              <Route path="/admin/collections" element={<CollectionsList />} />
+              <Route
+                path="/admin/collection/create"
+                element={<CreateCollection />}
+              />
+              <Route
+                path="/admin/collection/:id/edit"
+                element={<UpdateCollection />}
+              />
+              <Route path="admin/dashboard" element={<AdminDashboard />} />
+            </Route>
+          </Routes>
+        </main>
+        <Footer />
+      </div>
     </>
   );
 };

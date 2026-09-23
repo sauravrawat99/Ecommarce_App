@@ -10,9 +10,9 @@ const {
 // Order banao
 exports.newOrder = AsyncHandle(async (req, res) => {
   const userId = req.user.id;
-  const { shippingAddress, paymentMethod } = req.body;
+  const { shippingAddressId, paymentMethod } = req.body; // ✅ naam match karo
 
-  const order = await createOrder(userId, shippingAddress, paymentMethod);
+  const order = await createOrder(userId, shippingAddressId, paymentMethod); // ✅
   res.status(201).json({
     success: true,
     message: "Order created successfully",

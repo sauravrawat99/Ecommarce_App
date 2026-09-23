@@ -98,7 +98,7 @@ const productSchema = new mongoose.Schema(
 );
 
 // name se slug auto-generate karo, save/validate hone se pehle
-productSchema.pre("validate", function (next) {
+productSchema.pre("validate", function () {
   if (this.name && !this.slug) {
     this.slug = this.name
       .toLowerCase()
@@ -107,7 +107,5 @@ productSchema.pre("validate", function (next) {
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
   }
-  // next(); // 👈 ye line add karo
 });
-
 module.exports = mongoose.model("Product", productSchema);

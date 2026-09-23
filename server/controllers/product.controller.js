@@ -21,6 +21,15 @@ const {
 } = require("../utils/Cloudinary.utils");
 
 exports.createProduct = AsyncHandler(async (req, res) => {
+  console.log("=== DEBUG ===");
+  console.log("req.body:", req.body);
+  console.log("req.files:", req.files);
+  console.log("=============");
+
+  if (req.body.variants && typeof req.body.variants === "string") {
+    req.body.variants = JSON.parse(req.body.variants);
+  }
+
   validateCreateProduct(req.body);
 
   const images = [];
@@ -52,6 +61,7 @@ exports.getAllProducts = AsyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "Products fetched successfully",
+    count: product.length,
     product,
   });
 });

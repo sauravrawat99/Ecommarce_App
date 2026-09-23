@@ -1,23 +1,25 @@
 const multer = require("multer");
+const path = require("path");
 
-// Step 1 — Storage
 const storage = multer.memoryStorage();
 
-// Step 2 — FileFilter
+const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp"];
+const allowedExtensions = [".jpg", ".jpeg", ".png", ".webp"];
+
 const fileFilter = (req, file, cb) => {
-  if (
-    file.mimetype === "image/jpeg" ||
-    file.mimetype === "image/png" ||
-    file.mimetype === "image/webp"
-  ) {
-    cb(null, true); // allow
+  const ext = path.extname(file.originalname).toLowerCase();
+
+  const isMimeValid = allowedMimeTypes.includes(file.mimetype);
+  const isExtValid = allowedExtensions.includes(ext);
+
+  // mimetype sahi ho YA extension sahi ho — dono me se ek kaafi hai
+  if (isMimeValid || isExtValid) {
+    cb(null, true);
   } else {
-    cb(new Error("Only images are allowed!"), false); // block
+    cb(new Error("Only images are allowed!"), false);
   }
 };
 
-// Step 3 — Upload object
 const upload = multer({ storage, fileFilter });
 
-// Step 4 — Export
 module.exports = upload;

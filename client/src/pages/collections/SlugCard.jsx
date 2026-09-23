@@ -7,6 +7,7 @@ import {
   addToWishlist,
   removeFromWishlist,
 } from "../../redux/slices/wishlistSlice";
+import { addToCart } from "../../redux/slices/cartSlice";
 
 const SlugCard = ({ props }) => {
   const navigate = useNavigate();
@@ -17,8 +18,9 @@ const SlugCard = ({ props }) => {
 
   const { isLoggedIn } = useSelector((state) => state.auth);
   const { items, mutating } = useSelector((state) => state.wishList);
+  const { loading: cartMutating } = useSelector((state) => state.cart); // ✅ fix — "mutating" nahi, "loading" hai cartSlice me
 
-  const uniqueVariants = props.variants.filter(
+  const uniqueVariants = (props.variants || []).filter(
     (variant, index, self) =>
       index === self.findIndex((v) => v.color === variant.color),
   );
@@ -31,7 +33,7 @@ const SlugCard = ({ props }) => {
   const isWishlisted = wishListIds.has(props._id);
 
   const currentColor = uniqueVariants[imageIndex]?.color;
-  const sizesForCurrentColor = props.variants.filter(
+  const sizesForCurrentColor = (props.variants || []).filter(
     (v) => v.color === currentColor,
   );
 
@@ -59,12 +61,26 @@ const SlugCard = ({ props }) => {
   const handleOpenQuickAdd = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!isLoggedIn) {
+      navigate("/login");
+      return;
+    }
     setShowQuickAdd(true);
   };
 
   const handleConfirmAdd = () => {
     if (!selectedSize) return;
-    // dispatch(addToCart({ productId: props._id, size: selectedSize, color: currentColor, quantity: 1 }));
+    if (cartMutating) return;
+
+    dispatch(
+      addToCart({
+        productId: props._id,
+        quantity: 1,
+        size: selectedSize,
+        color: currentColor,
+      }),
+    );
+
     setShowQuickAdd(false);
     setSelectedSize(null);
   };
@@ -72,7 +88,7 @@ const SlugCard = ({ props }) => {
   return (
     <div className="relative group flex flex-col h-full">
       {/* Image */}
-      <div className="relative overflow-hidden rounded-xl aspect-square bg-gray-100">
+      <div className="relative overflow-hidden rounded-xl aspect-[4/5] bg-gray-100">
         <Link to={`/product/${props.slug}`}>
           <img
             src={props.images[imageIndex]?.url || props.images[0]?.url}
@@ -93,7 +109,7 @@ const SlugCard = ({ props }) => {
           />
         </button>
 
-        {/* Dot indicators — sirf visual, batata hai kitni images hain */}
+        {/* Dot indicators */}
         {props.images?.length > 1 && (
           <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex gap-1">
             {props.images.map((_, i) => (
@@ -244,10 +260,14 @@ const SlugCard = ({ props }) => {
 
               <button
                 onClick={handleConfirmAdd}
-                disabled={!selectedSize}
+                disabled={!selectedSize || cartMutating}
                 className="mt-2 h-12 rounded-full bg-black text-white font-medium disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
               >
-                {selectedSize ? "Add to Bag" : "Select a size"}
+                {cartMutating ?
+                  "Adding..."
+                : selectedSize ?
+                  "Add to Bag"
+                : "Select a size"}
               </button>
             </div>
           </div>

@@ -7,6 +7,7 @@ const morgan = require("morgan");
 const cors = require("cors");
 const cookiePerser = require("cookie-parser");
 const { cloudConfig } = require("./config/cloudinary");
+const addressRoutes = require("./routes/address.routes");
 const productRoutes = require("./routes/product.routes");
 const categoryRoutes = require("./routes/category.routes");
 const cartRouters = require("./routes/cart.routes");
@@ -44,18 +45,18 @@ app.use(
 );
 
 // Middleware to parse incoming JSON payloads and make them available in req.body
-app.use(express.json());
-
+app.use(express.json({ limit: "10mb" }));
 // parse the cookie
 app.use(cookiePerser());
 
 // middleware to handle routes related to authentication, such as login and registration
 app.use("/account", authRoutes); // login, signup, profile
 app.use("/account/orders", OrderRoutes); // order history
-app.use("/products", productRoutes); // CRUD + single product (id/slug)
+app.use("/product", productRoutes); // CRUD + single product (id/slug)
 app.use("/collections", collectionRoutes); // collection listing (men, women, all)
 app.use("/category", categoryRoutes);
 app.use("/cart", cartRouters);
+app.use("/address", addressRoutes);
 app.use("/wishlist", wishlistRoutes);
 app.use("/checkout", paymentRoutes);
 app.use("/admin", adminRoutes);

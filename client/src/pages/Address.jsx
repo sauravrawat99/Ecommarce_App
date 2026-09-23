@@ -6,6 +6,7 @@ import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 import { createOrder } from "../redux/slices/orderSlice";
 import { createPayment, verifyPayment } from "../redux/slices/paymentSlice";
+import { createAddress } from "../redux/slices/addressSlice"; // 🆕
 
 const Address = () => {
   const dispatch = useDispatch();
@@ -14,6 +15,8 @@ const Address = () => {
   const { user } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
+    fullName: "", // 🆕
+    phone: "", // 🆕
     address: "",
     city: "",
     state: "",
@@ -30,6 +33,11 @@ const Address = () => {
 
   const validate = () => {
     const newErrors = {};
+    if (!formData.fullName.trim()) newErrors.fullName = "Naam zaroori hai"; // 🆕
+    if (!formData.phone.trim())
+      newErrors.phone = "Phone number zaroori hai"; // 🆕
+    else if (!/^\d{10}$/.test(formData.phone))
+      newErrors.phone = "Valid 10-digit number daalein"; // 🆕
     if (!formData.address.trim()) newErrors.address = "Address zaroori hai";
     if (!formData.city.trim()) newErrors.city = "City zaroori hai";
     if (!formData.pincode.trim()) newErrors.pincode = "Pincode zaroori hai";
@@ -50,24 +58,22 @@ const Address = () => {
       key: razorpayKey,
       amount: razorpayOrder.amount,
       currency: razorpayOrder.currency,
-      order_id: razorpayOrder.id, // Razorpay ka order_id (backend se aaya)
+      order_id: razorpayOrder.id,
       name: "ShopKart",
       description: "Order Payment",
       handler: async (response) => {
-        // response mein Razorpay se ye milta hai:
-        // razorpay_order_id, razorpay_payment_id, razorpay_signature
         try {
           await dispatch(
             verifyPayment({
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              orderId: internalOrderId, // apna Order document ka _id
+              orderId: internalOrderId,
             }),
           ).unwrap();
 
           toast.success("Payment successful! Order confirmed 🎉");
-          navigate("/profile"); // ya "/orders" jab wo page bane
+          navigate("/profile");
         } catch (err) {
           toast.error(err || "Payment verification failed");
           setProcessing(false);
@@ -78,10 +84,9 @@ const Address = () => {
         email: user?.email || "",
       },
       theme: {
-        color: "#4F46E5", // Indigo — design system se match
+        color: "#4F46E5",
       },
       modal: {
-        // Agar user popup band kar de bina pay kiye
         ondismiss: () => {
           setProcessing(false);
           toast.error("Payment cancelled");
@@ -100,29 +105,37 @@ const Address = () => {
 
     setProcessing(true);
 
-    const shippingAddress = {
+    const addressPayload = {
+      fullName: formData.fullName, // 🆕
+      phone: formData.phone, // 🆕
       address: formData.address,
       city: formData.city,
       state: formData.state,
-      pincode: Number(formData.pincode),
+      pincode: formData.pincode, // string hi bhejo, Number mat karo (address model check karna)
     };
 
     try {
-      // ───── Step 1: Order create karo ─────
+      // ───── Step 1: Address create karo, uska _id lo ─────
+      const addressResult = await dispatch(
+        createAddress(addressPayload),
+      ).unwrap();
+      const shippingAddressId = addressResult.newAddress._id; // 🆕 controller "newAddress" key deta hai
+
+      // ───── Step 2: Order create karo, sirf addressId bhejo ─────
       const orderResult = await dispatch(
-        createOrder({ shippingAddress, paymentMethod }),
+        createOrder({ shippingAddressId, paymentMethod }), // 🆕 shippingAddress object nahi, id bhejo
       ).unwrap();
 
       const newOrder = orderResult.order;
 
-      // ───── Step 2a: COD hai to seedha done ─────
+      // ───── Step 3a: COD hai to seedha done ─────
       if (paymentMethod === "cod") {
         toast.success("Order placed successfully! 🎉");
         navigate("/profile");
         return;
       }
 
-      // ───── Step 2b: Card/UPI hai to Razorpay trigger karo ─────
+      // ───── Step 3b: Card/UPI hai to Razorpay trigger karo ─────
       const paymentResult = await dispatch(
         createPayment(newOrder._id),
       ).unwrap();
@@ -163,6 +176,28 @@ const Address = () => {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* 🆕 Full Name */}
+              <Input
+                label="Full Name"
+                type="text"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                placeholder="Your full name"
+                error={errors.fullName}
+              />
+
+              {/* 🆕 Phone */}
+              <Input
+                label="Phone"
+                type="text"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="10-digit mobile number"
+                error={errors.phone}
+              />
+
               <Input
                 label="Address"
                 type="text"

@@ -1,6 +1,6 @@
-/* eslint-disable no-unused-vars */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { authService } from "../../api/authService";
+import { getErrorMessage } from "../../utils/getErrorMessage";
 
 // ─── Async Thunks ─────────────────────────────────────
 
@@ -11,19 +11,16 @@ export const registerUser = createAsyncThunk(
       const res = await authService.register(userData);
       return res.data;
     } catch (err) {
-      return rejectWithValue(
-        err.response?.data?.message || "Registration failed",
-      );
+      return rejectWithValue(getErrorMessage(err, "Registration failed"));
     }
   },
 );
 
 export const loginUser = createAsyncThunk(
   "auth/login",
-  async (credentials, thunkAPI) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const res = await authService.login(credentials);
-
 
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);
@@ -33,39 +30,36 @@ export const loginUser = createAsyncThunk(
       }
 
       return res.data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Login failed",
-      );
+    } catch (err) {
+      return rejectWithValue(getErrorMessage(err, "Login failed"));
     }
   },
 );
 
 export const logoutUser = createAsyncThunk(
   "auth/logout",
-  async (_, thunkAPI) => {
+  async (_, { rejectWithValue }) => {
     try {
       await authService.logout();
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-    } catch (error) {
+    } catch (err) {
+      // logout me fail bhi ho to local data clear kar do
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      return thunkAPI.rejectWithValue(error.response?.data?.message);
+      return rejectWithValue(getErrorMessage(err, "Logout failed"));
     }
   },
 );
 
 export const getProfile = createAsyncThunk(
   "auth/getProfile",
-  async (_, thunkAPI) => {
+  async (_, { rejectWithValue }) => {
     try {
       const res = await authService.getProfile();
       return res.data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Profile fetch failed",
-      );
+    } catch (err) {
+      return rejectWithValue(getErrorMessage(err, "Profile fetch failed"));
     }
   },
 );
@@ -74,17 +68,14 @@ export const getProfile = createAsyncThunk(
 
 const token = localStorage.getItem("token");
 
-// FIX: try-catch lagaya — corrupt/invalid data ho toh crash na ho
 let user = null;
 try {
   const storedUser = localStorage.getItem("user");
-  // FIX: "undefined" string ko bhi check karo, sirf null nahi
   if (storedUser && storedUser !== "undefined") {
     user = JSON.parse(storedUser);
   }
 } catch (e) {
   user = null;
-  // corrupt data mila — localStorage clean kar do
   localStorage.removeItem("user");
 }
 
@@ -112,7 +103,6 @@ const authSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-
       // ── Register ──
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
@@ -148,17 +138,37 @@ const authSlice = createSlice({
       })
 
       // ── Logout ──
+      .addCase(logoutUser.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(logoutUser.fulfilled, (state) => {
+        state.loading = false;
         state.user = null;
         state.token = null;
         state.isLoggedIn = false;
         state.isAdmin = false;
       })
+      .addCase(logoutUser.rejected, (state, action) => {
+        state.loading = false;
+        state.user = null;
+        state.token = null;
+        state.isLoggedIn = false;
+        state.isAdmin = false;
+        state.error = action.payload;
+      })
 
       // ── Get Profile ──
+      .addCase(getProfile.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(getProfile.fulfilled, (state, action) => {
+        state.loading = false;
         state.user = action.payload.user;
         state.isAdmin = action.payload.user?.role === "admin";
+      })
+      .addCase(getProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

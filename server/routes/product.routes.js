@@ -14,18 +14,25 @@ const { isAdmin } = require("../middleware/isAdmin");
 const upload = require("../middleware/multer");
 
 router.post(
-  "/",
+  "/create",
   isAuthenticated,
   isAdmin,
   upload.array("images", 5),
   createProduct,
 );
 
+router.put(
+  "/:id",
+  isAuthenticated,
+  isAdmin,
+  upload.array("images", 5),
+  updateById,
+);
+
 router.get("/", getAllProducts);
 router.get("/search", searchProducts);
 router.get("/collections/:collectionSlug", getByCollection); // 👈 naya route — YAHAN, /:identifier se PEHLE
 router.get("/:identifier", getProduct); // 👈 ek hi route — id ya slug dono
-router.put("/:id", isAuthenticated, isAdmin, updateById);
 router.delete("/:id", isAuthenticated, isAdmin, deletebyId);
 
 module.exports = router;

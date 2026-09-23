@@ -3,16 +3,17 @@ const Product = require("../models/product.model");
 const ApiError = require("../utils/ApiError");
 
 // Wishlist dekho
+const WISHLIST_SELECT = "name price images slug";
+
 exports.getWishlist = async (userId) => {
   const user = await User.findById(userId).populate(
     "wishlist",
-    "name price images",
+    WISHLIST_SELECT,
   );
   if (!user) throw new ApiError("User not found", 404);
   return user.wishlist;
 };
 
-// Wishlist mein add karo
 exports.addToWishlist = async (userId, productId) => {
   const product = await Product.findById(productId);
   if (!product) throw new ApiError("Product not found", 404);
@@ -26,11 +27,10 @@ exports.addToWishlist = async (userId, productId) => {
   user.wishlist.push(productId);
   await user.save();
 
-  await user.populate("wishlist", "name price images");
+  await user.populate("wishlist", WISHLIST_SELECT);
   return user.wishlist;
 };
 
-// Wishlist se remove karo
 exports.removeFromWishlist = async (userId, productId) => {
   const user = await User.findById(userId);
   if (!user) throw new ApiError("User not found", 404);
@@ -39,6 +39,6 @@ exports.removeFromWishlist = async (userId, productId) => {
 
   await user.save();
 
-  await user.populate("wishlist", "name price images");
+  await user.populate("wishlist", WISHLIST_SELECT);
   return user.wishlist;
 };

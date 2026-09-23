@@ -1,7 +1,7 @@
 import api from "././axiosInstance";
 export const authService = {
   register: (userData) => {
-    return api.post("/auth/register", userData); // ← return
+    return api.post("/account/register", userData); // ← return
   },
 
   login: (credentials) => {
@@ -9,7 +9,7 @@ export const authService = {
   },
 
   logout: () => {
-    return api.get("/account/logout"); // ← GET nahi, POST hai tera backend me
+    return api.post("/account/logout"); // ← GET nahi, POST hai tera backend me
   },
 
   getProfile: () => {

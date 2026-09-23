@@ -1,71 +1,48 @@
+const Address = require("../models/address.model");
 const ApiError = require("../utils/ApiError");
-const AsyncHandler = require("../utils/AsyncHandle");
-const {
-  createAddress,
-  getUserAddresses,
-  setDefaultAddress,
-  deleteAddress,
-} = require("../service/address.service");
 
-// @desc Naya address create karo
-// @route POST /api/addresses
-// @access Private
-exports.createAddress = AsyncHandler(async (req, res) => {
-  const userId = req.user.id;
-  const addressData = req.body;
-
-  const newAddress = await createAddress(userId, addressData);
-
-  res.status(201).json({
-    success: true,
-    message: "Address created successfully",
-    newAddress,
+// Naya address create karo
+exports.createAddress = async (userId, addressData) => {
+  const newAddress = await Address.create({
+    user: userId,
+    ...addressData,
   });
-});
+  return newAddress;
+};
 
-// @desc Logged-in user ke saare addresses laao
-// @route GET /api/addresses
-// @access Private
-exports.getUserAddresses = AsyncHandler(async (req, res) => {
-  const userId = req.user.id;
-
-  const addresses = await getUserAddresses(userId);
-
-  res.status(200).json({
-    success: true,
-    message: "Addresses fetched successfully",
-    count: addresses.length,
-    addresses,
+// Logged-in user ke saare addresses laao
+exports.getUserAddresses = async (userId) => {
+  const addresses = await Address.find({ user: userId }).sort({
+    createdAt: -1,
   });
-});
+  return addresses;
+};
 
-// @desc Ek address ko default banao
-// @route PUT /api/addresses/:id/set-default
-// @access Private
-exports.setDefaultAddress = AsyncHandler(async (req, res) => {
-  const userId = req.user.id;
-  const { id } = req.params;
+// Ek address ko default banao
+exports.setDefaultAddress = async (userId, addressId) => {
+  const address = await Address.findOne({ _id: addressId, user: userId });
+  if (!address) {
+    throw new ApiError("Address not found", 404);
+  }
 
-  const updatedAddress = await setDefaultAddress(userId, id);
+  // Pehle user ke saare addresses ka isDefault false karo
+  await Address.updateMany({ user: userId }, { isDefault: false });
 
-  res.status(200).json({
-    success: true,
-    message: "Default address updated",
-    updatedAddress,
+  // Fir ye wala address default banao
+  address.isDefault = true;
+  await address.save();
+
+  return address;
+};
+
+// Address delete karo
+exports.deleteAddress = async (userId, addressId) => {
+  const address = await Address.findOneAndDelete({
+    _id: addressId,
+    user: userId,
   });
-});
-
-// @desc Address delete karo
-// @route DELETE /api/addresses/:id
-// @access Private
-exports.deleteAddress = AsyncHandler(async (req, res) => {
-  const userId = req.user.id;
-  const { id } = req.params;
-
-  await deleteAddress(userId, id);
-
-  res.status(200).json({
-    success: true,
-    message: "Address deleted successfully",
-  });
-});
+  if (!address) {
+    throw new ApiError("Address not found", 404);
+  }
+  return address;
+};

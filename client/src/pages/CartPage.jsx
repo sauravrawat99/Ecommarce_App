@@ -1,10 +1,14 @@
 import { useDispatch, useSelector } from "react-redux";
-import { getCart } from "../redux/slices/cartSlice";
+import {
+  getCart,
+  updateQuantity,
+  removeFromCart,
+} from "../redux/slices/cartSlice";
 import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
 import Spinner from "../components/ui/Spinner";
-import { ShoppingBag, PackageX } from "lucide-react";
+import { ShoppingBag, PackageX, Minus, Plus, Trash2 } from "lucide-react";
 
 const CartPage = () => {
   const dispatch = useDispatch();
@@ -17,6 +21,39 @@ const CartPage = () => {
 
   const handleCheckout = () => {
     navigate("/checkout");
+  };
+
+  const handleIncrease = (item) => {
+    dispatch(
+      updateQuantity({
+        productId: item.product._id,
+        quantity: item.quantity + 1,
+        size: item.size, // ✅ add
+        color: item.color, // ✅ add
+      }),
+    );
+  };
+
+  const handleDecrease = (item) => {
+    if (item.quantity <= 1) return;
+    dispatch(
+      updateQuantity({
+        productId: item.product._id,
+        quantity: item.quantity - 1,
+        size: item.size, // ✅ add
+        color: item.color, // ✅ add
+      }),
+    );
+  };
+
+  const handleRemove = (item) => {
+    dispatch(
+      removeFromCart({
+        productId: item.product._id,
+        size: item.size, // ✅ add
+        color: item.color, // ✅ add
+      }),
+    );
   };
 
   // ───── Loading ─────
@@ -59,7 +96,6 @@ const CartPage = () => {
     );
   }
 
-  // Agar koi item ka product delete ho chuka hai, to checkout block karna better hai
   const hasUnavailableItems = cart.items.some((item) => !item.product);
 
   return (
@@ -76,7 +112,6 @@ const CartPage = () => {
           {/* ───── Items List ───── */}
           <div className="lg:col-span-2 bg-white rounded-2xl sm:rounded-3xl shadow-sm p-4 sm:p-6">
             {cart.items.map((item) => {
-              // agar product delete ho chuka hai backend se, null aayega
               if (!item.product) {
                 return (
                   <div
@@ -115,9 +150,47 @@ const CartPage = () => {
                     <h2 className="text-sm sm:text-base font-medium text-gray-900 truncate">
                       {name}
                     </h2>
+                    {(item.size || item.color) && (
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {item.color && (
+                          <span className="capitalize">{item.color}</span>
+                        )}
+                        {item.size && item.color && " · "}
+                        {item.size && <span>Size {item.size}</span>}
+                      </p>
+                    )}
                     <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
-                      ₹{price?.toLocaleString()} × {item.quantity}
+                      ₹{price?.toLocaleString()}
                     </p>
+
+                    {/* Quantity stepper */}
+                    <div className="flex items-center gap-3 mt-2">
+                      <button
+                        onClick={() => handleDecrease(item)}
+                        disabled={loading || item.quantity <= 1}
+                        className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-200 hover:bg-gray-50 disabled:opacity-40 transition-colors"
+                      >
+                        <Minus size={14} />
+                      </button>
+                      <span className="text-sm font-medium w-5 text-center">
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() => handleIncrease(item)}
+                        disabled={loading}
+                        className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-200 hover:bg-gray-50 disabled:opacity-40 transition-colors"
+                      >
+                        <Plus size={14} />
+                      </button>
+
+                      <button
+                        onClick={() => handleRemove(item)}
+                        disabled={loading}
+                        className="ml-2 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-40"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </div>
 
                   <p className="text-sm sm:text-base font-semibold text-gray-900 shrink-0">

@@ -1,0 +1,186 @@
+# Ecommerce-App — Full Project Structure
+
+```
+Ecommarce-App/
+├── server/
+│   ├── config/
+│   │   ├── db.js                    # Mongo connect + PORT export
+│   │   └── cloudinary.js            # cloudConfig()
+│   │
+│   ├── models/
+│   │   ├── user.model.js            # name, email, password, role, wishlist[]
+│   │   ├── product.model.js         # name, slug, price, variants[], images[]
+│   │   ├── category.model.js
+│   │   ├── collections.model.js     # slug, type(manual/smart), products[], rules{}
+│   │   ├── cart.model.js
+│   │   ├── order.model.js
+│   │   └── review.model.js          # (agar banega future me)
+│   │
+│   ├── routes/
+│   │   ├── auth.routes.js           # /account
+│   │   ├── product.routes.js        # /products
+│   │   ├── category.routes.js       # /category
+│   │   ├── collection.routes.js     # /collections
+│   │   ├── cart.routes.js           # /cart
+│   │   ├── wishlist.routes.js       # /wishlist
+│   │   ├── order.routes.js          # /account/orders
+│   │   ├── payment.routes.js        # /checkout
+│   │   └── admin.routes.js          # /admin
+│   │
+│   ├── controllers/
+│   │   ├── auth.controller.js
+│   │   ├── product.controller.js
+│   │   ├── category.controller.js
+│   │   ├── collection.controller.js
+│   │   ├── cart.controller.js
+│   │   ├── wishList.controller.js
+│   │   ├── order.controller.js
+│   │   ├── payment.controller.js
+│   │   └── admin.controller.js
+│   │
+│   ├── service/                     # DB logic — controller se alag rakha hai
+│   │   ├── auth.service.js
+│   │   ├── product.Service.js
+│   │   ├── category.service.js
+│   │   ├── collection.service.js
+│   │   ├── cart.service.js
+│   │   ├── wishlist.service.js
+│   │   ├── order.service.js
+│   │   └── payment.service.js
+│   │
+│   ├── validator/
+│   │   ├── product.validator.js     # validateCreateProduct, checkId
+│   │   ├── auth.validator.js
+│   │   └── utils/
+│   │       └── ApiError.js          # ⚠️ duplicate mila — utils/ApiError.js bhi hai, ek hi rakho
+│   │
+│   ├── middleware/
+│   │   ├── auth.middleware.js       # isAuthenticated
+│   │   ├── isAdmin.js
+│   │   ├── AdminRoute.js            # (agar route-guard alag hai)
+│   │   └── multer.js                # upload.array/single config
+│   │
+│   ├── utils/
+│   │   ├── AsyncHandle.js           # AsyncHandler wrapper
+│   │   ├── ApiError.js
+│   │   ├── ErrorMiddleware.js
+│   │   └── Cloudinary.utils.js      # uploadToCloudinary, deleteFromCloudinary
+│   │
+│   ├── seed/
+│   │   └── seed.js                  # 160+ products seed script
+│   │
+│   ├── .env
+│   ├── app.js                       # ⚠️ dead file — server.js hi actually run hoti hai
+│   ├── server.js                    # ✅ actual entry point (package.json → "dev": "nodemon server.js")
+│   └── package.json
+│
+├── client/
+│   └── src/
+│       ├── api/                     # axios service layer — ek file per resource
+│       │   ├── axiosInstance.js     # baseURL + withCredentials config
+│       │   ├── authService.js
+│       │   ├── productService.js
+│       │   ├── collectionService.js
+│       │   ├── cartService.js
+│       │   ├── wishlistService.js
+│       │   └── orderService.js
+│       │
+│       ├── redux/
+│       │   ├── store.js
+│       │   └── slices/
+│       │       ├── authSlice.js
+│       │       ├── productSlice.js
+│       │       ├── collectionSlice.js
+│       │       ├── cartSlice.js
+│       │       ├── wishlistSlice.js
+│       │       └── orderSlice.js
+│       │
+│       ├── components/
+│       │   ├── Navbar.jsx
+│       │   ├── AdminRoute.jsx
+│       │   ├── PrivateRoutes.jsx
+│       │   ├── RedirectIfAuthenticated.jsx
+│       │   └── ui/
+│       │       ├── Button.jsx
+│       │       ├── Input.jsx
+│       │       ├── Bedge.jsx
+│       │       ├── Spinner.jsx
+│       │       └── Footer.jsx
+│       │
+│       ├── pages/
+│       │   ├── Home.jsx
+│       │   ├── CartPage.jsx
+│       │   ├── WishlistPage.jsx
+│       │   ├── Address.jsx          # checkout / shipping
+│       │   │
+│       │   ├── auth/
+│       │   │   ├── LoginPage.jsx
+│       │   │   ├── Register.jsx
+│       │   │   ├── ForgotPassword.jsx
+│       │   │   ├── ResetPassword.jsx
+│       │   │   └── ProfilePage.jsx
+│       │   │
+│       │   ├── products/
+│       │   │   ├── ProductList.jsx
+│       │   │   ├── ProductDetailPage.jsx
+│       │   │   ├── ProductCard.jsx
+│       │   │   ├── CreateProduct.jsx      # admin
+│       │   │   └── EditProduct.jsx        # admin
+│       │   │
+│       │   ├── collections/
+│       │   │   ├── collections.jsx        # listing page
+│       │   │   ├── Slug.jsx               # /collections/:slug page
+│       │   │   ├── SlugCard.jsx           # product card used inside Slug grid
+│       │   │   ├── createCollection.jsx   # admin
+│       │   │   ├── UpdateCollection.jsx   # admin
+│       │   │   └── CollectionsList.jsx    # admin
+│       │   │
+│       │   └── admin/
+│       │       ├── AdminDashboard.jsx
+│       │       └── AdminProductList.jsx
+│       │
+│       ├── App.jsx                  # Routes + root-level getCart/getWishlist dispatch
+│       └── main.jsx
+│
+└── README.md
+```
+
+---
+
+## Build Order (jo already follow kar raha hai, yahi sahi hai)
+
+1. ✅ **Auth** — Register/Login/Logout/Forgot-Reset Password (JWT + cookies)
+2. ✅ **Collections** — backend + frontend + filters + facets + slug routing
+3. 🔶 **Products** — CRUD done backend side, image upload abhi test ho raha hai
+4. 🔶 **Cart** — slice bana hai, UI/dispatch wiring abhi test ho raha hai
+5. 🔶 **Wishlist** — heart toggle + backend sync, abhi test ho raha hai
+6. ⬜ **Checkout / Razorpay** — pending
+7. ⬜ **Order history** — pending
+8. ⬜ **Admin panel UI** — routes/guards ban chuke hain, actual dashboard pages pending
+
+---
+
+## Naming Conventions (khud ke liye consistent rakhna)
+
+- **Files**: `PascalCase.jsx` components ke liye, `camelCase.js` services/slices/utils ke liye
+- **Redux slices**: hamesha `{ items/data, loading, mutating, error }` shape follow kar — jaisa wishlistSlice mein kiya
+- **API services**: ek file = ek resource (`cartService.js` sirf cart-related calls karega)
+- **Routes ka order matter karta hai**: specific route (`/collections/:collectionSlug`) generic route (`/:identifier`) se **pehle** likhna — warna generic route usko match kar lega
+
+---
+
+## ⚠️ Abhi ke Known Issues (fix karne hain)
+
+1. `app.js` aur `server.js` dono almost identical hain — `app.js` **dead code** hai kyunki `package.json` sirf `server.js` run karta hai. Ek hata de, confusion se bachega.
+2. `ApiError.js` do jagah hai — `utils/ApiError.js` aur `validator/utils/ApiError.js`. Ek hi rakho, sab imports usi pe point karo.
+3. `createProduct` controller mein `variants` ko `JSON.parse()` karna hai (form-data se string aata hai)
+4. `PUT /:id` (product update) route mein `upload.array("images", 5)` middleware missing hai
+5. Collection ke andar product add karna **manual type** ke liye `products[]` array mein ID push karna padta hai — `isFeatured` field ka `/collections/:slug` route se koi lena-dena nahi (wo alag `/products/collections/:slug` route ke liye hai)
+
+---
+
+## Do naya feature start karne se pehle poochne wale 3 sawaal (jo tune khud discuss kiya tha)
+
+1. **Ye screen kya data dikhayega?**
+2. **User is screen pe kya actions le sakta hai?**
+3. **Har action ke baad kya change hoga?**

@@ -207,9 +207,9 @@ const CreateProduct = () => {
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <button type="submit" className="w-full" disabled={loading}>
             {loading ? "Creating..." : "Create Product"}
-          </Button>
+          </button>
         </form>
 
         {error && (
@@ -234,13 +234,13 @@ const CreateProduct = () => {
             />
 
             <div className="flex gap-3">
-              <Button
+              <button
                 type="button"
                 onClick={handleCreateCategory}
                 className="flex-1"
               >
                 Create
-              </Button>
+              </button>
               <button
                 type="button"
                 onClick={() => setShowModal(false)}

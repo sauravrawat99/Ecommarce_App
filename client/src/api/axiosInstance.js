@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://ecommarce-app-1.onrender.com",
+  baseURL:
+    import.meta.env.VITE_API_URL || "https://ecommarce-app-1.onrender.com",
   timeout: 10000,
   withCredentials: true,
   headers: {
@@ -26,7 +27,7 @@ api.interceptors.response.use(
   (error) => {
     const status = error.response?.status;
 
-    if (status === 401) {
+    if (error.response?.data?.message === "jwt expired" || status === 401) {
       // Token expire — localStorage clear karo
       localStorage.removeItem("token");
       localStorage.removeItem("user");

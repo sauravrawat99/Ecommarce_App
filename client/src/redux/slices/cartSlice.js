@@ -6,7 +6,7 @@ export const getCart = createAsyncThunk(
   "cart/get",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await cartService.getCart(); // ✅ await + sahi naam
+      const res = await cartService.getCart();
       return res.data.cart;
     } catch (error) {
       return rejectWithValue(
@@ -19,9 +19,14 @@ export const getCart = createAsyncThunk(
 // 2. Cart Mein Add Karo
 export const addToCart = createAsyncThunk(
   "cart/add",
-  async ({ productId, quantity }, { rejectWithValue }) => {
+  async ({ productId, quantity, size, color }, { rejectWithValue }) => {
     try {
-      const res = await cartService.addToCart(productId, quantity); // ✅
+      const res = await cartService.addToCart({
+        productId,
+        quantity,
+        size,
+        color,
+      }); // ✅ size, color bhi bhej rahe hain
       return res.data.cart;
     } catch (error) {
       return rejectWithValue(
@@ -34,9 +39,10 @@ export const addToCart = createAsyncThunk(
 // 3. Item Remove Karo
 export const removeFromCart = createAsyncThunk(
   "cart/remove",
-  async (productId, { rejectWithValue }) => {
+  async ({ productId, size, color }, { rejectWithValue }) => {
+    // ✅ ab object leta hai
     try {
-      const res = await cartService.removeFromCart(productId);
+      const res = await cartService.removeFromCart(productId, size, color);
       return res.data.cart;
     } catch (error) {
       return rejectWithValue(
@@ -49,9 +55,14 @@ export const removeFromCart = createAsyncThunk(
 // 4. Quantity Update Karo
 export const updateQuantity = createAsyncThunk(
   "cart/updateQuantity",
-  async ({ productId, quantity }, { rejectWithValue }) => {
+  async ({ productId, quantity, size, color }, { rejectWithValue }) => {
     try {
-      const res = await cartService.updateQuantity(productId, quantity);
+      const res = await cartService.updateQuantity({
+        productId,
+        quantity,
+        size,
+        color,
+      }); // ✅ size, color bhi bhej rahe hain
       return res.data.cart;
     } catch (error) {
       return rejectWithValue(
@@ -67,7 +78,7 @@ export const clearCart = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       await cartService.clearCart();
-      return null; // cart khali ho gayi
+      return null;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to clear cart",
@@ -78,7 +89,7 @@ export const clearCart = createAsyncThunk(
 
 // ─── Initial State ───────────────────────────────
 const initialState = {
-  cart: null, // pura cart object (items + totalPrice)
+  cart: null,
   loading: false,
   error: null,
 };
@@ -93,7 +104,6 @@ const cartSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Helper — repeated pattern handle karne ke liye
     const handlePending = (state) => {
       state.loading = true;
       state.error = null;
@@ -104,35 +114,30 @@ const cartSlice = createSlice({
     };
     const handleCartFulfilled = (state, action) => {
       state.loading = false;
-      state.cart = action.payload; // cart update ho gaya
+      state.cart = action.payload;
     };
 
     builder
-      // Get Cart
       .addCase(getCart.pending, handlePending)
       .addCase(getCart.fulfilled, handleCartFulfilled)
       .addCase(getCart.rejected, handleRejected)
 
-      // Add to Cart
       .addCase(addToCart.pending, handlePending)
       .addCase(addToCart.fulfilled, handleCartFulfilled)
       .addCase(addToCart.rejected, handleRejected)
 
-      // Remove From Cart
       .addCase(removeFromCart.pending, handlePending)
       .addCase(removeFromCart.fulfilled, handleCartFulfilled)
       .addCase(removeFromCart.rejected, handleRejected)
 
-      // Update Quantity
       .addCase(updateQuantity.pending, handlePending)
       .addCase(updateQuantity.fulfilled, handleCartFulfilled)
       .addCase(updateQuantity.rejected, handleRejected)
 
-      // Clear Cart
       .addCase(clearCart.pending, handlePending)
       .addCase(clearCart.fulfilled, (state) => {
         state.loading = false;
-        state.cart = null; // ✅ cart khali
+        state.cart = null;
       })
       .addCase(clearCart.rejected, handleRejected);
   },

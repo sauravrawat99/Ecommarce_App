@@ -18,6 +18,12 @@ const cartSchema = new mongoose.Schema(
           default: 1,
           min: 1,
         },
+        size: {
+          type: String, // ✅ add kiya
+        },
+        color: {
+          type: String, // ✅ add kiya
+        },
       },
     ],
     totalPrice: {
