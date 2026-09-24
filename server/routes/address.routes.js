@@ -5,12 +5,14 @@ const {
   getUserAddresses,
   setDefaultAddress,
   deleteAddress,
+  updatedAddress,
 } = require("../controllers/address.controller");
 const { isAuthenticated } = require("../middleware/auth.middleware");
 
 router.post("/", isAuthenticated, createAddress);
 router.get("/", isAuthenticated, getUserAddresses);
-router.put("/:id/set-default", isAuthenticated, setDefaultAddress);
+router.patch("/:id/set-default", isAuthenticated, setDefaultAddress);
 router.delete("/:id", isAuthenticated, deleteAddress);
+router.put("/:id/update", isAuthenticated, updatedAddress);
 
 module.exports = router;

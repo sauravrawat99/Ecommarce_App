@@ -5,6 +5,7 @@ const {
   getUserAddresses,
   setDefaultAddress,
   deleteAddress,
+  updateAddress,
 } = require("../service/address.service");
 
 exports.createAddress = AsyncHandler(async (req, res) => {
@@ -52,5 +53,19 @@ exports.deleteAddress = AsyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "Address deleted successfully",
+  });
+});
+
+exports.updatedAddress = AsyncHandler(async (req, res) => {
+  const { id: addressId } = req.params;
+  const userId = req.user._id;
+  const updatedData = req.body;
+
+  const address = await updateAddress(addressId, userId, updatedData);
+
+  res.status(200).json({
+    success: true,
+    message: "Address updated successfully",
+    data: address,
   });
 });

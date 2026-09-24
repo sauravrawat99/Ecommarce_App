@@ -46,3 +46,25 @@ exports.deleteAddress = async (userId, addressId) => {
   }
   return address;
 };
+
+exports.updateAddress = async (addressId, userId, updatedData) => {
+  const address = await Address.findOneAndUpdate(
+    { _id: addressId, user: userId },   // ownership check bhi saath me
+    {
+      fullName: updatedData.fullName,
+      phone: updatedData.phone,
+      address: updatedData.address,
+      city: updatedData.city,
+      state: updatedData.state,
+      pincode: updatedData.pincode,
+      type: updatedData.type,
+    },
+    { new: true, runValidators: true },
+  );
+
+  if (!address) {
+    throw new ApiError("Address not found", 404);
+  }
+
+  return address;
+};
