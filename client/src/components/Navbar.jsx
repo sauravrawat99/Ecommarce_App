@@ -1,14 +1,24 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { ShoppingBag, Menu, X, Search, User, Heart } from "lucide-react";
+import {
+  ShoppingBag,
+  Menu,
+  X,
+  Search,
+  User,
+  Heart,
+  ShieldCheck,
+} from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchSearch } from "../redux/slices/productSlice";
+
 const Navbar = () => {
   const dispatch = useDispatch();
-  const { isLoggedIn } = useSelector((state) => state.auth);
+  const { isLoggedIn, user } = useSelector((state) => state.auth);
+  const isAdmin = isLoggedIn && user?.role === "admin";
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-
   const [searchQuery, setSearchQuery] = useState("");
 
   const toggleMenu = () => {
@@ -28,45 +38,40 @@ const Navbar = () => {
 
   const handleSubmite = (e) => {
     if (e.key === "Enter") {
-      console.log(e.target.value);
-
       dispatch(fetchSearch(searchQuery));
     }
   };
+
   const navLinkClass = ({ isActive }) =>
     `text-lx tracking-wide transition-colors ${
       isActive ? "font-semibold text-black " : "text-gray-600 hover:text-black "
     }`;
 
   return (
-    <nav className=" top-0 z-50 bg-white/90 backdrop-blur-sm shadow-sm h-20">
+    <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-sm shadow-sm h-20">
       {/* Top row */}
-      <div className="flex items-center px-4 sm:px-8 py-4 text-lg  justify-center h-full">
+      <div className="flex items-center px-4 sm:px-8 py-4 text-lg justify-center h-full">
         {/* Left third */}
         <div className="flex-1 flex items-center gap-4">
-          {/* Hamburger — sirf mobile pe dikhega */}
+          {/* Hamburger: sirf mobile pe */}
           <button
             className="md:hidden"
             onClick={toggleMenu}
             aria-label="Toggle menu"
           >
-            {isMenuOpen ?
-              <X size={30} />
-            : <Menu size={30} />}
+            {isMenuOpen ? <X size={30} /> : <Menu size={30} />}
           </button>
 
-          {/* Search icon — sirf mobile pe */}
+          {/* Search icon: sirf mobile pe */}
           <button
             className="md:hidden"
             onClick={toggleSearch}
             aria-label="Toggle search"
           >
-            {isSearchOpen ?
-              <X size={22} />
-            : <Search size={22} />}
+            {isSearchOpen ? <X size={22} /> : <Search size={22} />}
           </button>
 
-          {/* Nav links — sirf desktop (md aur usse bada) pe dikhenge */}
+          {/* Nav links: sirf desktop pe */}
           <div className="hidden md:flex items-center gap-6">
             <NavLink to="/collections/featured-all" className={navLinkClass}>
               Featured
@@ -80,7 +85,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Center third — logo */}
+        {/* Center third: logo */}
         <div className="flex-1 flex justify-center">
           <Link to="/" onClick={closeAll}>
             <h1 className="font-bold text-lg sm:text-xl tracking-wide">LOGO</h1>
@@ -89,7 +94,7 @@ const Navbar = () => {
 
         {/* Right third */}
         <div className="flex-1 flex items-center justify-end gap-4">
-          {/* Search box — sirf desktop pe inline dikhega */}
+          {/* Search box: sirf desktop pe */}
           <div className="hidden md:flex items-center border border-gray-200 rounded-full px-3 py-1.5 w-48 lg:w-64">
             <Search size={30} className="text-gray-400 mr-2 shrink-0" />
             <input
@@ -100,6 +105,18 @@ const Navbar = () => {
               className="w-full bg-transparent outline-none text-sm text-gray-700 placeholder:text-gray-400"
             />
           </div>
+
+          {/* Admin button: sirf admin ko dikhega (desktop) */}
+          {isAdmin && (
+            <Link
+              to="/admin/dashboard"
+              className="hidden md:flex items-center gap-1.5 bg-black text-white text-sm px-3 py-1.5 rounded-full hover:bg-gray-800 transition-colors"
+            >
+              <ShieldCheck size={18} />
+              Admin
+            </Link>
+          )}
+
           <Link to={isLoggedIn ? "/wishList" : "/login"}>
             <Heart size={30} />
           </Link>
@@ -112,9 +129,9 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile search dropdown — sirf mobile pe toggle hoga */}
+      {/* Mobile search dropdown */}
       {isSearchOpen && (
-        <div className="md:hidden px-4 pb-3">
+        <div className="md:hidden px-4 pb-3 bg-white">
           <div className="flex items-center border border-gray-200 rounded-full px-3 py-2">
             <Search size={16} className="text-gray-400 mr-2 shrink-0" />
             <input
@@ -129,9 +146,9 @@ const Navbar = () => {
         </div>
       )}
 
-      {/* Mobile menu dropdown — sirf mobile pe toggle hoga */}
+      {/* Mobile menu dropdown */}
       {isMenuOpen && (
-        <div className="md:hidden px-4 pb-4 flex flex-col gap-4 text-base border-t border-gray-100 pt-3">
+        <div className="md:hidden px-4 pb-4 flex flex-col gap-4 text-base border-t border-gray-100 pt-3 bg-white">
           <NavLink
             to="/collections/featured-all"
             onClick={closeAll}
@@ -153,6 +170,13 @@ const Navbar = () => {
           >
             Women
           </NavLink>
+
+          {/* Admin link: sirf admin ko dikhega (mobile) */}
+          {isAdmin && (
+            <NavLink to="/admin/dashboard" onClick={closeAll} className={navLinkClass}>
+              Admin Panel
+            </NavLink>
+          )}
         </div>
       )}
     </nav>

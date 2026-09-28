@@ -141,14 +141,7 @@ const Slug = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-[400px] flex justify-center items-center">
-        <h2 className="text-xl font-semibold">Loading products...</h2>
-      </div>
-    );
-  }
-
+  // Error full page pe hi rakha hai; loading ab neeche products area me dikhega
   if (error) {
     return (
       <div className="min-h-[400px] flex justify-center items-center">
@@ -158,7 +151,7 @@ const Slug = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8 flex items-baseline gap-3">
         <h1 className="text-3xl sm:text-4xl font-extrabold">
           {collection?.name || slug}
@@ -169,7 +162,7 @@ const Slug = () => {
       </div>
 
       <div className="flex flex-col md:flex-row gap-8">
-        {/* SIDEBAR — ✅ ab sticky hai, scroll ke sath fix rahega */}
+        {/* SIDEBAR: sticky, scroll ke saath fix rahega */}
         <aside className="w-full md:w-64 flex-shrink-0 md:sticky md:top-20 md:self-start md:max-h-[calc(100vh-6rem)] md:overflow-y-auto">
           <button
             onClick={handleClearFilters}
@@ -286,7 +279,7 @@ const Slug = () => {
         </aside>
 
         {/* MAIN CONTENT */}
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <div className="flex justify-end mb-5">
             <select
               value={sort_by}
@@ -303,13 +296,17 @@ const Slug = () => {
             </select>
           </div>
 
-          {/* ✅ hamesha 2 columns */}
-          {products?.length === 0 ?
+          {/* Loading sirf yahan dikhegi, sidebar gayab nahi hoga */}
+          {loading ?
+            <div className="min-h-[400px] flex justify-center items-center">
+              <h2 className="text-xl font-semibold">Loading products...</h2>
+            </div>
+          : !products?.length ?
             <div className="text-center py-20">
               <h2 className="text-2xl font-semibold">No Products Found</h2>
               <p className="text-gray-500 mt-2">Try changing your filters.</p>
             </div>
-          : <div className="grid grid-cols-2 gap-x-4 gap-y-8">
+          : <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-8">
               {products.map((product) => (
                 <SlugCard key={product._id} props={product} />
               ))}
