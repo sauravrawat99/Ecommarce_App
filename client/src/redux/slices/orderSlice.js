@@ -3,13 +3,14 @@ import { orderService } from "../../api/orderService";
 
 export const createOrder = createAsyncThunk(
   "order/createOrder",
-  async ({ shippingAddress, paymentMethod }, { rejectWithValue }) => {
+  async ({ shippingAddressId, paymentMethod }, { rejectWithValue }) => {
     try {
       const res = await orderService.createOrder(
-        shippingAddress,
+        shippingAddressId,
         paymentMethod,
       );
-      return res.data;
+
+      return res.data; // { success, message, order }
     } catch (error) {
       return rejectWithValue(
         error?.response?.data?.message || "Order creation failed",

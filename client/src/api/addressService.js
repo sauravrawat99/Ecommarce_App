@@ -16,4 +16,8 @@ export const addressService = {
   deleteAddress: (id) => {
     return api.delete(`/address/${id}`);
   },
+
+  updateAddress: (id) => {
+    return api.put(`/address/${id}/update`);
+  },
 };

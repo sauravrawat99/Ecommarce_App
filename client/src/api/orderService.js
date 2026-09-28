@@ -1,9 +1,9 @@
 import api from "./axiosInstance";
 
 export const orderService = {
-  createOrder: (shippingAddress, paymentMethod) => {
+  createOrder: (shippingAddressId, paymentMethod) => {
     return api.post("/account/orders/create/order", {
-      shippingAddress,
+      shippingAddressId,
       paymentMethod,
     });
   },

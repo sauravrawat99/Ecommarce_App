@@ -53,7 +53,18 @@ export const deleteAddress = createAsyncThunk(
     }
   },
 );
-
+//  update address
+export const updateAddress = createAsyncThunk(
+  "address/update",
+  async ({ addressId, updateData }, { rejectWithValue }) => {
+    try {
+      const res = await addressService.updateAddress(addressId, updateData);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(getErrorMessage(err));
+    }
+  },
+);
 const addressSlice = createSlice({
   name: "address",
   initialState: {
@@ -115,6 +126,7 @@ const addressSlice = createSlice({
       })
 
       // ───── deleteAddress ─────
+      // ───── deleteAddress ─────
       .addCase(deleteAddress.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -126,6 +138,23 @@ const addressSlice = createSlice({
         );
       })
       .addCase(deleteAddress.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // ───── updateAddress ─────
+      .addCase(updateAddress.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateAddress.fulfilled, (state, action) => {
+        state.loading = false;
+        const updated = action.payload.updatedAddress;
+        state.addresses = state.addresses.map((addr) =>
+          addr._id === updated._id ? updated : addr,
+        );
+      })
+      .addCase(updateAddress.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

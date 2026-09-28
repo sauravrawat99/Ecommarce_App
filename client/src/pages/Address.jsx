@@ -2,11 +2,10 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
+import AddressSelector from "../components/address/AddressSelector"; // path confirm kar lena
 import { createOrder } from "../redux/slices/orderSlice";
 import { createPayment, verifyPayment } from "../redux/slices/paymentSlice";
-import { createAddress } from "../redux/slices/addressSlice"; // 🆕
 
 const Address = () => {
   const dispatch = useDispatch();
@@ -14,41 +13,10 @@ const Address = () => {
   const { cart } = useSelector((state) => state.cart);
   const { user } = useSelector((state) => state.auth);
 
-  const [formData, setFormData] = useState({
-    fullName: "", // 🆕
-    phone: "", // 🆕
-    address: "",
-    city: "",
-    state: "",
-    pincode: "",
-  });
-
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("card");
-  const [errors, setErrors] = useState({});
   const [processing, setProcessing] = useState(false);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const validate = () => {
-    const newErrors = {};
-    if (!formData.fullName.trim()) newErrors.fullName = "Naam zaroori hai"; // 🆕
-    if (!formData.phone.trim())
-      newErrors.phone = "Phone number zaroori hai"; // 🆕
-    else if (!/^\d{10}$/.test(formData.phone))
-      newErrors.phone = "Valid 10-digit number daalein"; // 🆕
-    if (!formData.address.trim()) newErrors.address = "Address zaroori hai";
-    if (!formData.city.trim()) newErrors.city = "City zaroori hai";
-    if (!formData.pincode.trim()) newErrors.pincode = "Pincode zaroori hai";
-    else if (!/^\d{6}$/.test(formData.pincode))
-      newErrors.pincode = "Valid 6-digit pincode daalein";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // ───── Razorpay checkout popup kholne wala function ─────
   const openRazorpayCheckout = (
     razorpayOrder,
     razorpayKey,
@@ -79,13 +47,8 @@ const Address = () => {
           setProcessing(false);
         }
       },
-      prefill: {
-        name: user?.name || "",
-        email: user?.email || "",
-      },
-      theme: {
-        color: "#4F46E5",
-      },
+      prefill: { name: user?.name || "", email: user?.email || "" },
+      theme: { color: "#4F46E5" },
       modal: {
         ondismiss: () => {
           setProcessing(false);
@@ -94,48 +57,30 @@ const Address = () => {
       },
     };
 
-    const razorpayInstance = new window.Razorpay(options);
-    razorpayInstance.open();
+    new window.Razorpay(options).open();
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!validate()) return;
+  const handlePlaceOrder = async () => {
+    if (!selectedAddressId) {
+      toast.error("Please select a delivery address");
+      return;
+    }
 
     setProcessing(true);
 
-    const addressPayload = {
-      fullName: formData.fullName, // 🆕
-      phone: formData.phone, // 🆕
-      address: formData.address,
-      city: formData.city,
-      state: formData.state,
-      pincode: formData.pincode, // string hi bhejo, Number mat karo (address model check karna)
-    };
-
     try {
-      // ───── Step 1: Address create karo, uska _id lo ─────
-      const addressResult = await dispatch(
-        createAddress(addressPayload),
-      ).unwrap();
-      const shippingAddressId = addressResult.newAddress._id; // 🆕 controller "newAddress" key deta hai
-
-      // ───── Step 2: Order create karo, sirf addressId bhejo ─────
       const orderResult = await dispatch(
-        createOrder({ shippingAddressId, paymentMethod }), // 🆕 shippingAddress object nahi, id bhejo
+        createOrder({ shippingAddressId: selectedAddressId, paymentMethod }),
       ).unwrap();
 
       const newOrder = orderResult.order;
 
-      // ───── Step 3a: COD hai to seedha done ─────
       if (paymentMethod === "cod") {
         toast.success("Order placed successfully! 🎉");
         navigate("/profile");
         return;
       }
 
-      // ───── Step 3b: Card/UPI hai to Razorpay trigger karo ─────
       const paymentResult = await dispatch(
         createPayment(newOrder._id),
       ).unwrap();
@@ -169,110 +114,40 @@ const Address = () => {
         </h1>
 
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* ───── Shipping Form ───── */}
-          <div className="lg:col-span-2 bg-white rounded-2xl sm:rounded-3xl shadow-sm p-5 sm:p-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 sm:mb-6">
-              Shipping Address
-            </h2>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* 🆕 Full Name */}
-              <Input
-                label="Full Name"
-                type="text"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                placeholder="Your full name"
-                error={errors.fullName}
+          {/* ───── Left: Address + Payment ───── */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-sm p-5 sm:p-8">
+              <AddressSelector
+                selectedAddressId={selectedAddressId}
+                onSelect={setSelectedAddressId}
               />
+            </div>
 
-              {/* 🆕 Phone */}
-              <Input
-                label="Phone"
-                type="text"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="10-digit mobile number"
-                error={errors.phone}
-              />
-
-              <Input
-                label="Address"
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                placeholder="House no, street, area"
-                error={errors.address}
-              />
-
-              <div className="grid sm:grid-cols-2 gap-4">
-                <Input
-                  label="City"
-                  type="text"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
-                  placeholder="Enter your city"
-                  error={errors.city}
-                />
-                <Input
-                  label="State"
-                  type="text"
-                  name="state"
-                  value={formData.state}
-                  onChange={handleChange}
-                  placeholder="Enter your state (optional)"
-                />
+            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-sm p-5 sm:p-8">
+              <label className="text-lg font-semibold text-gray-900 mb-4 block">
+                Payment Method
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {["card", "upi", "cod"].map((method) => (
+                  <button
+                    key={method}
+                    type="button"
+                    onClick={() => setPaymentMethod(method)}
+                    className={`py-2.5 rounded-xl border text-sm font-medium capitalize transition-colors
+                      ${
+                        paymentMethod === method ?
+                          "border-indigo-600 bg-indigo-50 text-indigo-600"
+                        : "border-gray-200 text-gray-600 hover:border-gray-300"
+                      }`}
+                  >
+                    {method === "cod" ? "Cash on Delivery" : method}
+                  </button>
+                ))}
               </div>
-
-              <Input
-                label="Pincode"
-                type="text"
-                name="pincode"
-                value={formData.pincode}
-                onChange={handleChange}
-                placeholder="6-digit pincode"
-                error={errors.pincode}
-              />
-
-              {/* ───── Payment Method ───── */}
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Payment Method
-                </label>
-                <div className="grid grid-cols-3 gap-3">
-                  {["card", "upi", "cod"].map((method) => (
-                    <button
-                      key={method}
-                      type="button"
-                      onClick={() => setPaymentMethod(method)}
-                      className={`py-2.5 rounded-xl border text-sm font-medium capitalize transition-colors
-                        ${
-                          paymentMethod === method ?
-                            "border-indigo-600 bg-indigo-50 text-indigo-600"
-                          : "border-gray-200 text-gray-600 hover:border-gray-300"
-                        }`}
-                    >
-                      {method === "cod" ? "Cash on Delivery" : method}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full lg:hidden"
-                disabled={processing}
-              >
-                {processing ? "Processing..." : "Place Order"}
-              </Button>
-            </form>
+            </div>
           </div>
 
-          {/* ───── Order Summary ───── */}
+          {/* ───── Right: Order Summary ───── */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl sm:rounded-3xl shadow-sm p-5 sm:p-6 lg:sticky lg:top-24">
               <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
@@ -304,9 +179,9 @@ const Address = () => {
 
               <Button
                 type="button"
-                onClick={handleSubmit}
-                className="w-full hidden lg:block"
-                disabled={processing}
+                onClick={handlePlaceOrder}
+                className="w-full"
+                disabled={processing || !selectedAddressId}
               >
                 {processing ? "Processing..." : "Place Order"}
               </Button>
